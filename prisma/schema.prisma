@@ -34,7 +34,7 @@ model Provider {
   description    String?
   isOpen         Boolean @default(true)
 
-  meals  Meal[]
+  meals  ProviderMeal[]
   orders Order[]
 
   createdAt DateTime @default(now())
@@ -52,7 +52,7 @@ model Meal {
   providerId String
   categoryId String?
 
-  provider Provider  @relation(fields: [providerId], references: [id])
+  provider ProviderMeal[]
   category Category? @relation(fields: [categoryId], references: [id])
 
   name        String
@@ -64,6 +64,19 @@ model Meal {
   orderItems OrderItem[]
 
   createdAt DateTime @default(now())
+}
+
+model ProviderMeal {
+  id          String @id @default(uuid())
+  providerId  String
+  mealId      String
+  provider    Provider @relation(fields: [providerId], references: [id])
+  meal        Meal            @relation(fields: [mealId], references: [id])
+  isAvailable Boolean @default(true)
+  stock       Int?
+  price       Float
+  @@unique([providerId, mealId])
+
 }
 
 enum OrderStatus {
