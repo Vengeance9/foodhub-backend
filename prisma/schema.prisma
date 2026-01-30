@@ -1,0 +1,198 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Profile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  name    String
+  phone   String?
+  address String?
+
+  createdAt DateTime @default(now())
+}
+
+model Provider {
+  id             String @id @default(uuid())
+  userId         String @unique
+  user           User   @relation(fields: [userId], references: [id])
+
+  restaurantName String
+  description    String?
+  isOpen         Boolean @default(true)
+
+  meals  Meal[]
+  orders Order[]
+
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @unique
+
+  meals Meal[]
+}
+
+model Meal {
+  id         String  @id @default(uuid())
+  providerId String
+  categoryId String?
+
+  provider Provider  @relation(fields: [providerId], references: [id])
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  name        String
+  description String?
+  price       Float
+  isAvailable Boolean @default(true)
+
+  reviews    Review[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  ON_THE_WAY
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id         String @id @default(uuid())
+  customerId String
+  providerId String
+
+  customer User     @relation(fields: [customerId], references: [id])
+  provider Provider @relation(fields: [providerId], references: [id])
+
+  status          OrderStatus @default(PENDING)
+  totalAmount     Float
+  deliveryAddress String
+  paymentMethod   String      @default("COD")
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  orderId String
+  mealId  String
+
+  order Order @relation(fields: [orderId], references: [id])
+  meal  Meal  @relation(fields: [mealId], references: [id])
+
+  quantity Int
+  price    Float
+}
+
+model Review {
+  id     String @id @default(uuid())
+  userId String
+  mealId String
+
+  user User @relation(fields: [userId], references: [id])
+  meal Meal @relation(fields: [mealId], references: [id])
+
+  rating  Int
+  comment String?
+
+  createdAt DateTime @default(now())
+}
+
+
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  role      Role @default(CUSTOMER)
+  isActive  Boolean  @default(true)
+  profile   Profile?
+  provider  Provider?
+  orders    Order[]
+  reviews   Review[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+
