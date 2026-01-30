@@ -86,7 +86,7 @@ const getAllMeals = async ({
     where: {
       AND: andConditions,
     },
-    
+
   })
   return {
     data: result,
@@ -99,5 +99,27 @@ const getAllMeals = async ({
   };
 };
 
+const getMealById = async (id: string) => {
+    const meal = await prisma.meal.findUnique({
+        where: { id },
+        include: {
+        category: true,
+        reviews: true,
+        provider: {
+            where: { isAvailable: true },
+            select: {
+            price: true,
+            provider: {
+                select: {
+                restaurantName: true,
+                },
+            },
+            },
+        },
+        },
+    });
+    return meal;
+}
 
-export const mealService = {getAllMeals}
+
+export const mealService = {getAllMeals,getMealById}

@@ -7,3 +7,6 @@ router.get('/',
     mealsController.getAllMeals
 )
 
+router.get('/:id',
+    mealsController.getMealById)
+
