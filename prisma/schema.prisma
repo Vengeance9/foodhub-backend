@@ -11,6 +11,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url  = "process.env.DATABASE_URL"
 }
 
 model Profile {
@@ -34,10 +35,10 @@ model Provider {
   description    String?
   isOpen         Boolean @default(true)
 
-  meals  ProviderMeal[]
-  orders Order[]
+  meals          ProviderMeal[]
+  orders         Order[]
 
-  createdAt DateTime @default(now())
+  createdAt      DateTime @default(now())
 }
 
 model Category {
@@ -48,22 +49,14 @@ model Category {
 }
 
 model Meal {
-  id         String  @id @default(uuid())
-  providerId String
-  categoryId String?
-
-  provider ProviderMeal[]
-  category Category? @relation(fields: [categoryId], references: [id])
-
+  id          String  @id @default(uuid())
+  provider    ProviderMeal[]
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
   name        String
   description String?
-  price       Float
-  isAvailable Boolean @default(true)
-
-  reviews    Review[]
-  orderItems OrderItem[]
-
-  createdAt DateTime @default(now())
+  reviews     Review[]
+  createdAt   DateTime @default(now())
 }
 
 model ProviderMeal {
@@ -72,8 +65,8 @@ model ProviderMeal {
   mealId      String
   provider    Provider @relation(fields: [providerId], references: [id])
   meal        Meal            @relation(fields: [mealId], references: [id])
+  orderItems  OrderItem[]
   isAvailable Boolean @default(true)
-  stock       Int?
   price       Float
   @@unique([providerId, mealId])
 
@@ -89,33 +82,31 @@ enum OrderStatus {
 }
 
 model Order {
-  id         String @id @default(uuid())
-  customerId String
-  providerId String
+  id                String @id @default(uuid())
+  customerId        String
+  providerId        String
 
-  customer User     @relation(fields: [customerId], references: [id])
-  provider Provider @relation(fields: [providerId], references: [id])
+  customer          User     @relation(fields: [customerId], references: [id])
+  provider          Provider @relation(fields: [providerId], references: [id])
 
-  status          OrderStatus @default(PENDING)
-  totalAmount     Float
-  deliveryAddress String
-  paymentMethod   String      @default("COD")
+  status            OrderStatus @default(PENDING)
+  totalAmount       Float
+  deliveryAddress   String
+  paymentMethod     String      @default("COD")
 
-  items OrderItem[]
+  items             OrderItem[]
 
-  createdAt DateTime @default(now())
+  createdAt         DateTime @default(now())
 }
 
 model OrderItem {
-  id      String @id @default(uuid())
-  orderId String
-  mealId  String
-
-  order Order @relation(fields: [orderId], references: [id])
-  meal  Meal  @relation(fields: [mealId], references: [id])
-
-  quantity Int
-  price    Float
+  id              String @id @default(uuid())
+  orderId         String
+  ProvidermealId  String
+  order           Order @relation(fields: [orderId], references: [id])
+  Providermeal    ProviderMeal  @relation(fields: [ProvidermealId], references: [id])
+  quantity        Int
+  price           Float
 }
 
 model Review {
@@ -139,7 +130,7 @@ model User {
   name          String
   email         String
   emailVerified Boolean   @default(false)
-  role      Role @default(CUSTOMER)
+  role          Role @default(CUSTOMER)
   isActive  Boolean  @default(true)
   profile   Profile?
   provider  Provider?

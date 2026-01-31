@@ -1,6 +1,7 @@
 import { integer } from './../../../node_modules/effect/src/Config';
 import { string } from "better-auth"
 import { prisma } from "../../lib/prisma"
+import { get } from 'http';
 
 
 
@@ -122,4 +123,74 @@ const getMealById = async (id: string) => {
 }
 
 
-export const mealService = {getAllMeals,getMealById}
+const getProviders = async()=>{
+    const providers = await prisma.provider.findMany({
+        select:{
+            restaurantName:true,
+            isOpen:true,
+            description:true,
+            createdAt:true,
+        },   
+    })
+    return providers
+}
+
+const getProviderById = async (
+  providerId: string,
+  categoryName?: string // optional (when clicking buttons)
+) => {
+  const provider = await prisma.provider.findUnique({
+    where: { id: providerId },
+
+    select: {
+      id: true,
+      restaurantName: true,
+      description: true,
+      isOpen: true,
+
+      meals: {
+        where: {
+          isAvailable: true, 
+          ...(categoryName && {
+            meal: {
+              category: {
+                name: categoryName,
+              },
+            },
+          }),
+        },
+        select: {
+          price: true,
+          meal: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+
+              reviews: {
+                select: {
+                  id: true,
+                  rating: true,
+                  comment: true,
+                  createdAt: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return provider;
+};
+
+
+export const mealService = {getAllMeals,getMealById,getProviders,getProviderById}
