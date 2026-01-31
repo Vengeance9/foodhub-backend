@@ -11,7 +11,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url  = "process.env.DATABASE_URL"
+   url  = "process.env.DATABASE_URL"
 }
 
 model Profile {
@@ -90,7 +90,7 @@ model Order {
   provider          Provider @relation(fields: [providerId], references: [id])
 
   status            OrderStatus @default(PENDING)
-  totalAmount       Float
+  totalAmount       Int
   deliveryAddress   String
   paymentMethod     String      @default("COD")
 
@@ -106,7 +106,7 @@ model OrderItem {
   order           Order @relation(fields: [orderId], references: [id])
   Providermeal    ProviderMeal  @relation(fields: [ProvidermealId], references: [id])
   quantity        Int
-  price           Float
+  price           Int
 }
 
 model Review {

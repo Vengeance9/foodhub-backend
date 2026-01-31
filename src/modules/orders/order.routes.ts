@@ -3,13 +3,13 @@ import { orderController } from "./order.controller";
 
 const router = express.Router();
 
-router.post("/orders", 
+router.post("/orders/:providerId", 
     orderController.createOrders
 );
 router.get('/orders',
-    orderController.getCart
+    orderController.getOrders
 )
-router.get('/orders/:id',
-    orderController.getCart
+router.get('/orders/:orderId',
+    orderController.getOrderDetails
 )
 
