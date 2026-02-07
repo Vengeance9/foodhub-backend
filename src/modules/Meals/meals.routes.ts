@@ -17,3 +17,5 @@ router.get('/providers',
 router.get('/providers/:id',
     mealsController.getProviderById
 )
+
+export const mealsRoutes = router;

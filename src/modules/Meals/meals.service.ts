@@ -53,7 +53,7 @@ const getAllMeals = async ({
     }
 
     if(typeof isAvailable==='boolean'){
-        andConditions.push({providers:{some:{isAvailable:true}}})
+        andConditions.push({providers:{some:{isAvailable}}})
     }
    
     

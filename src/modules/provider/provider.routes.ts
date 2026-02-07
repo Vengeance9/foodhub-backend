@@ -1,5 +1,5 @@
 
-
+import auth, { UserRole } from "../../middleware.ts/auth";
 import express, { Router } from "express";
 
 import { providerController } from "./provider.controller";
@@ -7,12 +7,20 @@ import { providerController } from "./provider.controller";
 
 const router = express.Router();
 
+router.post('/register',
+    auth(UserRole.CUSTOMER),
+    providerController.register)
+
 router.post('/meals',
+    auth(UserRole.PROVIDER),
     providerController.createMeal
 )
 
 router.put('/meals/:id',
     providerController.updateMeal
 )
+router.put('/meals/:id',
+    providerController.deleteMeal
+)
 
-export default router;
+export const providerRoutes: Router = router;

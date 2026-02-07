@@ -6,7 +6,7 @@ import { get } from "http";
 
 const getAllMeals = async(req:Request,res:Response)=>{
     try{
-        const search = req.query
+    const search = req.query
     const searchString = typeof search ==='string'?search:undefined
     const name = req.query.name as string
     const description = req.query.description as string
@@ -42,6 +42,7 @@ const getMealById = async(req:Request,res:Response)=>{
 const getProviders = async(req:Request,res:Response)=>{
     try{
       const result = await mealService.getProviders()
+        return res.status(200).json({data:result,message:'Providers fetched successfully'})
     }
     catch(error){
         return res.status(500).json({message:'Something went wrong',error}) 

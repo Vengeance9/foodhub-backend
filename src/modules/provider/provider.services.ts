@@ -1,16 +1,81 @@
 import { prisma } from "../../lib/prisma"
+import { UserRole } from "../../middleware.ts/auth";
 
-const createMeal = async(mealData: any, providerId: string,isAvailable:boolean) => {
-    const meal = await prisma.meal.create({
-        data:{
-            ...mealData,
-            providerId: providerId,
-            include:{
-                provider:{
-                    isAvailable: isAvailable
-                }
-            }
-        }
+const register = async (
+  userId: string,
+  providerData: {
+    restaurantName: string;
+    description: string;
+    isOpen: boolean;
+    address: string;
+    phone:string;
+    website: string;
+    cuisineType:string[]
+  }
+) => {
+
+  const user = await prisma.user.update({
+    where:{id:userId},
+    data:{
+      role: UserRole.PROVIDER
+    }
+  })
+  const provider = await prisma.provider.create({
+    data: {
+      restaurantName: providerData.restaurantName,
+      description: providerData.description,
+      isOpen: providerData.isOpen,
+      address: providerData.address,
+      phone: providerData.phone,
+      website: providerData.website,
+      cuisineType: providerData.cuisineType,
+      user:{
+        connect:{
+          id: userId,
+      }
+      }},
+    })
+  return provider;
+};
+
+const createMeal = async(mealData: { name: string; description: string; price: number,category:string },
+  providerId: string,
+  isAvailable:boolean) => {
+  const category = mealData.category.toLowerCase();
+
+  const provider  = await  prisma.provider.findUnique({
+    where:{userId:providerId},
+    select:{id:true}
+  })
+    
+  return prisma.$transaction(async (tx) =>
+    {
+      const meal = await tx.meal.create({
+        data: {
+          name: mealData.name,
+          description: mealData.description,
+
+          category: {
+            connectOrCreate: {
+              where: { name: category },
+              create: { name: category },
+            },
+          },
+        },
+        include: {
+          provider: true,
+          category: true,
+        },
+      });
+      const providerMeal = await tx.providerMeal.create({
+        data: {
+          mealId: meal.id,
+          providerId: provider!.id,
+          isAvailable: isAvailable,
+          price: mealData.price,
+        },
+      });
+      return {meal, providerMeal};
     })
 }
 
@@ -44,4 +109,31 @@ const updateMeal = async (
   return result;
 };
 
-export const providerServices = {createMeal,updateMeal}
+const deleteMeal = async (mealId: string, providerId: string) => {
+ return prisma.$transaction(async (tx)=>{
+    const meal = await tx.providerMeal.findUnique({
+      where: {
+        providerId_mealId: {
+          providerId: providerId,
+          mealId: mealId,
+        },
+      },
+    });
+    if(!meal){
+      throw new Error("Meal not found or you are not the provider")
+    }
+    await tx.providerMeal.delete({
+      where: {
+        providerId_mealId: {
+          providerId: providerId,
+          mealId: mealId,
+        },
+      },
+    });
+ })
+}
+
+
+
+export const providerServices = {createMeal,updateMeal,register,deleteMeal}
+

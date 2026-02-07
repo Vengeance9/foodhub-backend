@@ -11,7 +11,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-   url  = "process.env.DATABASE_URL"
 }
 
 model Profile {
@@ -34,6 +33,10 @@ model Provider {
   restaurantName String
   description    String?
   isOpen         Boolean @default(true)
+  address        String
+  phone          String
+  website        String?
+  cuisineType    String[]
 
   meals          ProviderMeal[]
   orders         Order[]
