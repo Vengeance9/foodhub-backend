@@ -11,6 +11,15 @@ router.post('/register',
     auth(UserRole.CUSTOMER),
     providerController.register)
 
+router.get('/AllProviders',
+    providerController.getAllProviders
+)
+
+router.get('/:id',
+    providerController.getProviderMeals
+
+)
+
 router.post('/meals',
     auth(UserRole.PROVIDER),
     providerController.createMeal

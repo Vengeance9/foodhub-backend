@@ -69,8 +69,9 @@ model ProviderMeal {
   provider    Provider @relation(fields: [providerId], references: [id])
   meal        Meal            @relation(fields: [mealId], references: [id])
   orderItems  OrderItem[]
+  cartItems   CartItem[]
   isAvailable Boolean @default(true)
-  price       Float
+  price       Int
   @@unique([providerId, mealId])
 
 }
@@ -95,6 +96,7 @@ model Order {
   status            OrderStatus @default(PENDING)
   totalAmount       Int
   deliveryAddress   String
+  contact           String
   paymentMethod     String      @default("COD")
 
   items             OrderItem[]
@@ -111,6 +113,27 @@ model OrderItem {
   quantity        Int
   price           Int
 }
+
+model Cart {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  providerId String
+  items      CartItem[]
+  updatedAt  DateTime @updatedAt
+}
+
+model CartItem {
+  id             String @id @default(uuid())
+  cartId         String
+  providerMealId String
+  quantity       Int
+
+  cart           Cart          @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  providerMeal   ProviderMeal  @relation(fields: [providerMealId], references: [id])
+
+  @@unique([cartId, providerMealId])
+}
+
 
 model Review {
   id     String @id @default(uuid())

@@ -74,4 +74,23 @@ const deleteMeal = async (req: Request, res: Response) => {
     }
 }
 
-export const providerController = {createMeal,updateMeal,register,deleteMeal}
+const getAllProviders = async (req: Request, res: Response) => {
+    try{
+        const result = await providerServices.getAllProviders();
+        return res.status(200).json({data:result,message:'Providers fetched successfully'})
+    }catch(e){
+        res.status(500).json({message: "Internal server error"})
+    }
+}
+
+const getProviderMeals = async (req: Request, res: Response) => {
+    const providerId = req.params.id;
+    try{
+        const result = await providerServices.getProviderMeals(providerId as string);
+        return res.status(200).json({data:result,message:'Meals fetched successfully'})
+    }catch(e:any){
+        res.status(500).json({message:e.message})
+    }
+}
+
+export const providerController = {getProviderMeals,createMeal,updateMeal,register,deleteMeal,getAllProviders}

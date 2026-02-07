@@ -5,7 +5,6 @@ import { orderServices } from "./order.services";
 type cartItem = {
   providerMealId: string;
   quantity: number;
-  price: number;
 };
 
 type orderItems = {
@@ -15,11 +14,43 @@ type orderItems = {
   cartItems: cartItem[];
 };
 
-const createOrders = async (req: Request, res: Response) => {
+const addToCart = async (req: Request, res: Response) => {
+  try{
+    const providerId = req.params.providerId;
+    const userId = req.user?.id;
+    const { quantity } = req.body as cartItem;
+    const result = await orderServices.addToCart(
+      quantity,
+      userId as string,
+      providerId as string
+    );
+    res.status(200).json({ message: "Items added to cart successfully", data: result });
+
+  }catch(e){
+    res.status(500).json({ message: "Internal server error" });
+    return;
+  }
+}
+
+const getCart = async (req: Request, res: Response) => {
+  try{
+    const userId = req.user?.id;
+    const result = await orderServices.getCart(
+      userId as string
+    );
+    res.status(200).json({ message: "Cart fetched successfully", data: result });
+
+  }catch(e){
+    res.status(500).json({ message: "Internal server error" });
+    return;
+  }
+}
+
+const checkOutOrder = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const providerId = req.params.providerId;
-    const result = await orderServices.createOrders(
+    const result = await orderServices.checkOutOrder(
       req.body,
       userId as string,
       providerId as string
@@ -60,4 +91,4 @@ const getOrderDetails = async (req: Request, res: Response) => {
   }
 };
 
-export const orderController = { createOrders, getOrders, getOrderDetails };
+export const orderController = { checkOutOrder, getOrders, getOrderDetails,addToCart,getCart };
