@@ -1,3 +1,4 @@
+import { OrderStatus } from './../../../generated/prisma/enums';
 import { prisma } from "../../lib/prisma"
 import { UserRole } from "../../middleware.ts/auth";
 
@@ -208,5 +209,31 @@ const getProviderMeals = async(providerId:string)=>{
 
 
 
-export const providerServices = {getProviderMeals,createMeal,updateMeal,register,deleteMeal,getAllProviders}
+const updateOrderStatus = async(orderId:string, status:OrderStatus, userId:string)=>{
+  const order = await prisma.order.findUnique({
+    where:{id:orderId},
+    include:{
+      provider:true
+    }
+  })
+  if(!order){
+    throw new Error("Order not found")
+  }
+  if(order.provider.userId !== userId){
+    throw new Error("You are not the provider for this order")
+  }
+  const updatedOrder = await prisma.order.update({
+    where:{id:orderId},
+    data:{
+      status: status
+    }
+  })
+  return updatedOrder
+  
+
+}
+
+
+
+export const providerServices = {updateOrderStatus,getProviderMeals,createMeal,updateMeal,register,deleteMeal,getAllProviders}
 

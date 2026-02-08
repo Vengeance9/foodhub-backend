@@ -21,6 +21,18 @@ const review = async(userId:string, providerMealId:string, rating:number, commen
     return result
 }
 
+const reviewProvider = async(providerId:string, userId:string)=>{
+    const existingReview = await prisma.review.findFirst({
+        where:{
+            userId,
+            providerMeal: {
+                providerId
+            }
+        }
+    })
+
+}
+
 const updateReview = async(userId:string, providerMealId:string, rating:number, comment: string)=>{
     const existingReview = await prisma.review.findFirst({
         where:{

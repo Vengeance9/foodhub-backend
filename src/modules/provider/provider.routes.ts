@@ -35,4 +35,9 @@ router.delete(
   providerController.deleteMeal
 );
 
+router.put('/updateOrderStatus/:id',
+    auth(UserRole.PROVIDER),
+    providerController.updateOrderStatus
+)
+
 export const providerRoutes: Router = router;

@@ -96,4 +96,20 @@ const getProviderMeals = async (req: Request, res: Response) => {
     }
 }
 
-export const providerController = {getProviderMeals,createMeal,updateMeal,register,deleteMeal,getAllProviders}
+const updateOrderStatus = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    const orderId = req.params.id;
+    const {status} = req.body;
+    const validStatuses = ['PENDING', 'ON_THE_WAY', 'PREPARING', 'DELIVERED'];
+    if(!validStatuses.includes(status)){
+        return res.status(400).json({message:'Invalid status'})
+    }
+    try{
+        const result = await providerServices.updateOrderStatus(orderId as string,status, userId as string, )
+        return res.status(200).json({data:result,message:'Order status updated successfully'})
+    }catch(e:any){
+        res.status(500).json({message:e.message})
+    }
+}
+
+export const providerController = {updateOrderStatus,getProviderMeals,createMeal,updateMeal,register,deleteMeal,getAllProviders}
