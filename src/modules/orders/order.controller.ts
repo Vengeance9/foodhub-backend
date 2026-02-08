@@ -16,18 +16,18 @@ type orderItems = {
 
 const addToCart = async (req: Request, res: Response) => {
   try{
-    const providerId = req.params.providerId;
+    const providerMealId = req.params.providerMealId;
     const userId = req.user?.id;
     const { quantity } = req.body as cartItem;
     const result = await orderServices.addToCart(
       quantity,
       userId as string,
-      providerId as string
+      providerMealId as string
     );
     res.status(200).json({ message: "Items added to cart successfully", data: result });
 
-  }catch(e){
-    res.status(500).json({ message: "Internal server error" });
+  }catch(e:any){
+    res.status(500).json({ message: e.message });
     return;
   }
 }

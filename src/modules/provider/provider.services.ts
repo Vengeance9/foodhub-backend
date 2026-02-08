@@ -85,10 +85,29 @@ const updateMeal = async (
   providerId: string,
   isAvailable: boolean
 ) => {
+  const provider = await prisma.provider.findUnique({
+    where: { userId: providerId },
+    select: { id: true },
+  })
+
+  const existingRecord = await prisma.providerMeal.findUnique({
+    where: {
+      providerId_mealId: {
+        providerId: provider!.id,
+        mealId,
+      },
+    },
+  });
+
+  if (!existingRecord) {
+    throw new Error(
+      `No providerMeal found for providerId: ${provider!.id} and mealId: ${mealId}`
+    );
+  }
   const result = await prisma.providerMeal.update({
     where: {
       providerId_mealId: {
-        providerId: providerId,
+        providerId: provider!.id,
         mealId: mealId,
       },
     },
@@ -97,7 +116,8 @@ const updateMeal = async (
       price: mealData.price,
       meal: {
         update: {
-         ...mealData
+          name: mealData.name,
+          description: mealData.description,
         },
       },
     },
@@ -110,11 +130,15 @@ const updateMeal = async (
 };
 
 const deleteMeal = async (mealId: string, providerId: string) => {
+  const provider = await prisma.provider.findUnique({
+    where: { userId: providerId },
+    select: { id: true },
+  });
  return prisma.$transaction(async (tx)=>{
     const meal = await tx.providerMeal.findUnique({
       where: {
         providerId_mealId: {
-          providerId: providerId,
+          providerId: provider!.id,
           mealId: mealId,
         },
       },
@@ -125,7 +149,7 @@ const deleteMeal = async (mealId: string, providerId: string) => {
     await tx.providerMeal.delete({
       where: {
         providerId_mealId: {
-          providerId: providerId,
+          providerId: provider!.id,
           mealId: mealId,
         },
       },
@@ -162,7 +186,17 @@ const getProviderMeals = async(providerId:string)=>{
     select:{
       meals:{
         select:{
-          meal:true,
+          meal:{
+            select:{
+              name:true,
+              description:true,
+              category:{
+                select:{
+                  name:true
+              }
+            }
+          }
+        },
           price:true,
           isAvailable:true
         }

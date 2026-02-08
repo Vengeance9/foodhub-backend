@@ -1,10 +1,11 @@
 import express, { Router } from "express";
 import { orderController } from "./order.controller";
 import auth, { UserRole } from "../../middleware.ts/auth";
+import e from "express";
 
 const router = express.Router();
 
-router.post('/add_to_cart/:providerId',
+router.post('/add_to_cart/:providerMealId',
     auth(UserRole.CUSTOMER),
     orderController.addToCart
 )
@@ -14,11 +15,11 @@ router.get('/cart',
     orderController.getCart
 )
 
-router.post("/orders/checkout", 
+router.post("/checkout", 
     auth(UserRole.CUSTOMER),
     orderController.checkOutOrder
 );
-router.get('/orders',
+router.get('/getOrders',
     auth(UserRole.CUSTOMER),
     orderController.getOrders
 )
@@ -28,3 +29,4 @@ router.get(
   orderController.getOrderDetails
 );
 
+export const orderRoutes = router;

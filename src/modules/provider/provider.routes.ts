@@ -26,10 +26,13 @@ router.post('/meals',
 )
 
 router.put('/meals/:id',
+    auth(UserRole.PROVIDER),
     providerController.updateMeal
 )
-router.put('/meals/:id',
-    providerController.deleteMeal
-)
+router.delete(
+  "/meals/:id",
+  auth(UserRole.PROVIDER),
+  providerController.deleteMeal
+);
 
 export const providerRoutes: Router = router;

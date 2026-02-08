@@ -58,7 +58,6 @@ model Meal {
   category    Category? @relation(fields: [categoryId], references: [id])
   name        String
   description String?
-  reviews     Review[]
   createdAt   DateTime @default(now())
 }
 
@@ -70,6 +69,7 @@ model ProviderMeal {
   meal        Meal            @relation(fields: [mealId], references: [id])
   orderItems  OrderItem[]
   cartItems   CartItem[]
+  reviews     Review[]
   isAvailable Boolean @default(true)
   price       Int
   @@unique([providerId, mealId])
@@ -138,15 +138,16 @@ model CartItem {
 model Review {
   id     String @id @default(uuid())
   userId String
-  mealId String
+  providerMealId String
 
   user User @relation(fields: [userId], references: [id])
-  meal Meal @relation(fields: [mealId], references: [id])
+  providerMeal ProviderMeal @relation(fields: [providerMealId], references: [id])
 
   rating  Int
   comment String?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 

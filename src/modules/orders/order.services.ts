@@ -57,28 +57,40 @@ const addToCart = async(
 }
 
 const getCart = async(userId:string)=>{
-  const cart = await prisma.cart.findUnique({
+  const cart = await prisma.cart.findUniqueOrThrow({
     where:{
       userId
     },
-    include:{
+    select:{
       items:{
-        include:{
+        select:{
           providerMeal:{
-            include:{
+            select:{
               meal:{
                 select:{
                   name: true,
                   description: true,
                 }
-              }
+              },
+              provider:{
+                select:{
+                  restaurantName: true
+                }
+              },
+              price:true
             }
-          }
+          },
+          quantity:true
         }
       }
     }
   })
-  return cart
+  let totalAmount = 0;
+
+  const orderItems = cart.items.map((item)=>{
+    totalAmount += item.quantity * item.providerMeal.price
+  })
+  return {cart,totalAmount}
 }
 
 
