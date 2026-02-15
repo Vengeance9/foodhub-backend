@@ -1,94 +1,85 @@
 import { prisma } from "../../lib/prisma"
 
-const review = async(userId:string, providerMealId:string, rating:number, comment: string)=>{
+
+
+const reviewProvider = async(userId:string, providerId:string, rating?:number, comment?:string)=>{
+    const isOrdered = await prisma.order.findFirst({
+        where:{
+            customerId:userId,
+            providerId
+        }
+    })
+    if(!isOrdered) throw new Error("You can only review providers you have ordered from.")
     const existingReview = await prisma.review.findFirst({
         where:{
             userId,
-            providerMealId
+            providerId
+        },
+        select:{
+            id:true
         }
     })
-    if(existingReview){
-        throw new Error("You have already reviewed this meal.")
-    }
-    const result = await prisma.review.create({
-        data:{
+   
+    const result = await prisma.review.upsert({
+        where: {
+            userId_providerId: {
+                userId,
+                providerId
+            }
+        },
+        update: {
+            rating,
+            comment
+        },
+        create: {
             userId,
-            providerMealId,
+            providerId,
             rating,
             comment
         }
     })
-    return result
+    if(existingReview) return { message: "Review updated successfully", review: result }
+    return { message: "Review submitted successfully", review: result }
 }
 
-const reviewProvider = async(providerId:string, userId:string)=>{
-    const existingReview = await prisma.review.findFirst({
+const getMyReviews = async(userId:string, providerId:string) => {
+    const reviews = await prisma.review.findFirst({
         where:{
             userId,
-            providerMeal: {
-                providerId
+            providerId
+        },
+        select:{
+            id:true,
+            rating:true,
+            comment:true,
+            provider:{
+                select:{
+                    restaurantName:true
+                }
             }
         }
     })
-
+    return reviews
 }
 
-const updateReview = async(userId:string, providerMealId:string, rating:number, comment: string)=>{
-    const existingReview = await prisma.review.findFirst({
+const getAllReviews = async(providerId:string)=>{
+    const reviews = await prisma.review.findMany({
         where:{
-            userId,
-            providerMealId
-        }
-    })
-    if(!existingReview){
-        throw new Error("You have not reviewed this meal yet.")
-    }
-    const result = await prisma.review.update({
-        where:{
-            id: existingReview.id
-        },
-        data:{
-            rating,
-            comment
-        }
-    })
-    return result
-}
-
-const deleteReview = async(userId:string, providerMealId:string)=>{
-    const existingReview = await prisma.review.findFirst({
-        where:{
-            userId,
-            providerMealId
-        }
-    })
-    if(!existingReview){
-        throw new Error("You have not reviewed this meal yet.")
-    }
-    const result = await prisma.review.delete({
-        where:{
-            id: existingReview.id
-        }
-    })
-    return result
-}
-
-const getMyReview = async(userId:string, providerMealId:string)=>{
-    const existingReview = await prisma.review.findFirst({
-        where:{
-            userId,
-            providerMealId
+            providerId
         },
         select:{
-            rating: true,
-            comment: true,
-            createdAt: true,
-            updatedAt: true
+            id:true,
+            rating:true,
+            comment:true,
+            user:{
+                select:{
+                    name:true
+                }
+            }
         }
     })
-    if(!existingReview){
-        throw new Error("You have not reviewed this meal yet.")
-    }
-    return existingReview
+    return reviews
 }
-export const reviewServices = {review, updateReview,deleteReview, getMyReview}
+export const reviewServices = { reviewProvider, getMyReviews,
+getAllReviews
+}

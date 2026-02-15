@@ -3,62 +3,50 @@ import { prisma } from "../../lib/prisma";
 import { reviewServices } from "./reviews.services";
 import { get } from "http";
 
-const review = async (req: Request, res: Response) => {
+
+
+const reviewProvider = async(req: Request, res: Response) => {
     try{
-    const userId = req.user?.id
-    const providerMealId = req.params.providerMealId
-    const {rating, comment } = req.body;
-
-    console.log("userId:", userId);
-    console.log("providerMealId:", providerMealId);
-    const result = await reviewServices.review(userId!, providerMealId as string, rating, comment)
-    return res.status(201).json(result)
-
-    }catch(e:any){
-        return res.status(500).json({message: e.message})
-    }
+        const userId = req.user?.id
+        const providerId = req.params.providerId
+        const {rating, comment } = req.body;
     
-}
-
-const updateReview = async (req: Request, res: Response) => {
-    try{
-    const userId = req.user?.id
-    const providerMealId = req.params.providerMealId
-    const {rating, comment } = req.body;
-
-    const result = await reviewServices.updateReview(userId!, providerMealId as string, rating, comment)
-    return res.status(200).json(result)
-
-    }catch(e:any){
-        return res.status(500).json({message: e.message})
-    }
-}
-
-const deleteReview = async (req: Request, res: Response) => {
-    try{
-    const userId = req.user?.id
-    const providerMealId = req.params.providerMealId
-
-    const result = await reviewServices.deleteReview(userId!, providerMealId as string)
-    return res.status(200).json(result)
-
-    }catch(e:any){
-        return res.status(500).json({message: e.message})
-    }
-}
-
-
-const getMyReview = async (req: Request, res: Response) => {
-    try{
-    const userId = req.user?.id
-    const providerMealId = req.params.providerMealId
-    const result = await reviewServices.getMyReview(userId!, providerMealId as string)
-    return res.status(200).json(result)
-
+        // console.log("userId:", userId);
+        // console.log("providerId:", providerId);
+        // console.log('This is the rating',rating)
+        // console.log('This is the comment',comment)
+        const result = await reviewServices.reviewProvider(userId!, providerId as string, rating, comment)
+        // console.log(result)
+        return res.status(201).json({data:result,message:result.message})
     
+        }catch(e:any){
+            console.log(e.message)
+            return res.status(500).json({message: e.message})
+        }
+}
 
+const getMyReviews = async(req: Request, res: Response) => {
+    const userId = req.user?.id
+    const providerId = req.params.providerId
+
+    try{
+        const result = await reviewServices.getMyReviews(userId!, providerId as string)
+        return res.status(200).json({data:result})
     }catch(e:any){
+        console.log(e.message)
         return res.status(500).json({message: e.message})
     }
 }
-export const reviewController = { review, updateReview, deleteReview ,getMyReview}
+
+const getAllReviews = async(req: Request, res: Response) => {
+    const providerId = req.params.providerId
+    try{
+        const result = await reviewServices.getAllReviews(providerId as string)
+       // console.log(result)
+        return res.status(200).json({data:result})
+    }catch(e:any){
+        console.log(e.message)
+        return res.status(500).json({message: e.message})
+    }
+}
+export const reviewController = { reviewProvider, getMyReviews, getAllReviews}

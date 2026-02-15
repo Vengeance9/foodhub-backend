@@ -1,14 +1,21 @@
-import auth, { UserRole } from "../../middleware.ts/auth";
+import auth, { UserRole } from "../../middleware/auth";
 import express, { Router } from "express";
 import { reviewController } from "./reviews.controller";
 
 const router = express.Router();
 
-router.post('/:providerMealId', auth(UserRole.CUSTOMER), reviewController.review)
+router.post(
+  "/provider/:providerId",
+  auth(UserRole.CUSTOMER),
+  reviewController.reviewProvider
+);
 
-router.put('/:providerMealId', auth(UserRole.CUSTOMER), reviewController.updateReview)
+router.get(
+  "/my_reviews/:providerId",
+  auth(UserRole.CUSTOMER),
+  reviewController.getMyReviews
+);
 
-router.delete('/:providerMealId', auth(UserRole.CUSTOMER), reviewController.deleteReview)
+router.get("/all_reviews/:providerId", reviewController.getAllReviews);
 
-router.get('/:providerMealId', auth(UserRole.CUSTOMER), reviewController.getMyReview)
 export const reviewRoutes = router;
