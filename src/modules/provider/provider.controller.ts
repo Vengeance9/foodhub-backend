@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import { providerServices } from "./provider.services";
 import { prisma } from "../../lib/prisma";
+import cloudinary from "../../config/cloudinary";
 
 
 const register = async (req: Request, res: Response) => {
@@ -10,29 +11,100 @@ const register = async (req: Request, res: Response) => {
         return res.status(400).json({message:'User id is required'})
     }
     try{
-        const result = await providerServices.register(userId,req.body);
+        let imageUrl: string | undefined;
+
+        
+        if (req.file) {
+          const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "providers",
+          });
+          imageUrl = result.secure_url;
+        }
+        const isOpen = req.body.isOpen
+          ? req.body.isOpen === "true"
+            ? true
+            : false
+          : true;
+
+        let cuisineTypeArray: string[];
+        if (typeof req.body.cuisineType === "string") {
+          try {
+            
+            const cleanedString = req.body.cuisineType.trim();
+            cuisineTypeArray = JSON.parse(cleanedString);
+          } catch (error) {
+            
+            cuisineTypeArray = req.body.cuisineType
+              .split(",")
+              .map((item: string) => item.trim());
+          }
+        } else if (Array.isArray(req.body.cuisineType)) {
+          cuisineTypeArray = req.body.cuisineType;
+        } else {
+          cuisineTypeArray = [];
+        }
+
+        const providerData = {
+            ...req.body,
+            isOpen,
+            cuisineType: cuisineTypeArray,
+            image: imageUrl,
+        }
+        
+        const result = await providerServices.register(userId,providerData);
         return res.status(201).json({data:result,message:'Provider registered successfully'})
 
-    }catch(e){
-        res.status(500).json({message: "Internal server error"})
+    }catch(e:any){
+        res.status(500).json({message:e.message})
+    }
+}
+
+const getMyProviders = async(req: Request, res: Response) => {
+    try{
+        const userId = req.user?.id;
+        const search = req.query.searchTerm as string;
+        console.log("this is the search query:", search)
+        const result = await providerServices.getMyProviders(userId as string, search);
+        console.log(result)
+        return res.status(200).json({data:result,message:'Providers fetched successfully'})
+    }catch(e:any){
+        res.status(500).json({message:e.message})
+    }
+}
+
+const getProviderOrders = async(req: Request, res: Response) => {
+    const providerId = req.params.providerId;
+    //console.log("PROVIDER ID:", providerId);
+   // console.log('yayyyyaaaa')
+    try{
+        const result = await providerServices.getProviderOrders(providerId as string);
+        return res.status(200).json({data:result,message:'Orders fetched successfully'})
+    }catch(e:any){
+      console.log(e.message)
+        res.status(500).json({message:e.message})
     }
 }
 
 const createMeal = async (req: Request, res: Response) => {
    
     try{
-        const providerId = req.user?.id;
-        const provider = await prisma.provider.findUnique({
-          where: { userId:providerId }, 
-        });
 
-        if (!provider) {
-          throw new Error("You are not registered as a provider");
+        console.log("RAW BODY:", req.body);
+        console.log("NAME FIELD:", req.body.name);
+        let imageUrl: string | undefined;
+
+        if (req.file) {
+          const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "providers",
+          });
+          imageUrl = result.secure_url;
         }
+        const providerId = req.params.id;
         console.log(providerId)
         const isAvailable = req.body.isAvailable? req.body.isAvailable === 'true'? true: false : true;
         const result = await providerServices.createMeal(
             req.body,
+            imageUrl,
             providerId as string,
             isAvailable
         );
@@ -46,15 +118,23 @@ const createMeal = async (req: Request, res: Response) => {
 
 const updateMeal = async (req: Request, res: Response) => {
     try{
-        const providerId = req.user?.id;
+        
         const mealId = req.params.id;
-        console.log(providerId,mealId)
-        const isAvailable = req.body.isAvailable? req.body.isAvailable === 'true'? true: false : true;
+        let imageUrl: string | undefined;
+
+        if (req.file) {
+          const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "providers",
+          });
+          imageUrl = result.secure_url;
+        }
+        console.log("RAW BODY:", req.body);
+        console.log(typeof(req.body.isAvailable), req.body.isAvailable);
+        const isAvailable = req.body.isAvailable? req.body.isAvailable === 'true'? true: false : undefined;
+        const updatedData = {...req.body, isAvailable: isAvailable, image: imageUrl}
         const result = await providerServices.updateMeal(
-          req.body,
+          updatedData,
           mealId as string,
-          providerId as string,
-          isAvailable
         );
         return res.status(200).json({data:result,message:'Meal updated successfully'})
        
@@ -112,4 +192,58 @@ const updateOrderStatus = async (req: Request, res: Response) => {
     }
 }
 
-export const providerController = {updateOrderStatus,getProviderMeals,createMeal,updateMeal,register,deleteMeal,getAllProviders}
+const updateProvider = async (req: Request, res: Response) => {
+    const providerId = req.params.id;
+    const userId = req.user?.id;
+
+    console.log(providerId,userId)
+    
+    try{
+        let imageUrl: string | undefined;
+
+        
+        if (req.file) {
+          const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "providers",
+          });
+          imageUrl = result.secure_url;
+        }
+        const isOpen = req.body.isOpen
+          ? req.body.isOpen === "true"
+            ? true
+            : false
+          : true;
+
+        let cuisineTypeArray: string[];
+        if (typeof req.body.cuisineType === "string") {
+          try {
+            
+            const cleanedString = req.body.cuisineType.trim();
+            cuisineTypeArray = JSON.parse(cleanedString);
+          } catch (error) {
+            
+            cuisineTypeArray = req.body.cuisineType
+              .split(",")
+              .map((item: string) => item.trim());
+          }
+        } else if (Array.isArray(req.body.cuisineType)) {
+          cuisineTypeArray = req.body.cuisineType;
+        } else {
+          cuisineTypeArray = [];
+        }
+
+        const providerData = {
+            ...req.body,
+            isOpen,
+            cuisineType: cuisineTypeArray,
+            image: imageUrl,
+        }
+        
+        const result = await providerServices.updateProvider(providerId as string,providerData);
+        return res.status(200).json({data:result,message:'Provider updated successfully'})
+
+    }catch(e:any){
+        res.status(500).json({message:e.message})
+    }
+}
+export const providerController = {updateProvider,getProviderOrders,getMyProviders,updateOrderStatus,getProviderMeals,createMeal,updateMeal,register,deleteMeal,getAllProviders}

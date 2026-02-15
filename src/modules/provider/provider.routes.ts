@@ -1,43 +1,68 @@
-
-import auth, { UserRole } from "../../middleware.ts/auth";
+import auth, { UserRole } from "../../middleware/auth";
 import express, { Router } from "express";
 
 import { providerController } from "./provider.controller";
-
+import upload from "../../middleware/upload";
 
 const router = express.Router();
 
-router.post('/register',
-    auth(UserRole.CUSTOMER),
-    providerController.register)
+router.post(
+  "/register",
+  auth(UserRole.CUSTOMER, UserRole.PROVIDER),
+  upload.single("image"),
+  providerController.register
+);
 
-router.get('/AllProviders',
-    providerController.getAllProviders
-)
+router.put(
+  "/update_provider/:id",
+  auth(UserRole.PROVIDER),
+  upload.single("image"),
+  providerController.updateProvider
+);
 
-router.get('/:id',
-    providerController.getProviderMeals
+router.get(
+  "/my_providers",
+  auth(UserRole.PROVIDER),
+  providerController.getMyProviders
+);
 
-)
+router.get("/AllProviders", providerController.getAllProviders);
 
-router.post('/meals',
-    auth(UserRole.PROVIDER),
-    providerController.createMeal
-)
+router.get(
+  "/providerMeals/:id",
+  auth(UserRole.PROVIDER),
+  providerController.getProviderMeals
+);
 
-router.put('/meals/:id',
-    auth(UserRole.PROVIDER),
-    providerController.updateMeal
-)
+router.post(
+  "/meals/:id",
+  auth(UserRole.PROVIDER),
+  upload.single("image"),
+  providerController.createMeal
+);
+
+router.put(
+  "/meals/:id",
+  auth(UserRole.PROVIDER),
+  upload.single("image"),
+  providerController.updateMeal
+);
 router.delete(
   "/meals/:id",
   auth(UserRole.PROVIDER),
   providerController.deleteMeal
 );
 
-router.put('/updateOrderStatus/:id',
-    auth(UserRole.PROVIDER),
-    providerController.updateOrderStatus
-)
+router.put(
+  "/updateOrderStatus/:id",
+  auth(UserRole.PROVIDER),
+  providerController.updateOrderStatus
+);
+
+router.get(
+  "/provider_orders/:providerId",
+  auth(UserRole.PROVIDER),
+  providerController.getProviderOrders
+);
 
 export const providerRoutes: Router = router;
