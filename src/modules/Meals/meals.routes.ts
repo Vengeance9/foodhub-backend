@@ -1,21 +1,19 @@
 import express, { Router } from "express";
 import { mealsController } from "./meals.controller";
+import auth, { UserRole } from "../../middleware/auth";
 
 const router = express.Router();
 
-router.get('/',
-    mealsController.getAllMeals
-)
+router.get("/", mealsController.getAllMeals);
 
-router.get('/:id',
-    mealsController.getMealById)
+router.get(
+  "/providers",
+  //auth(UserRole.CUSTOMER,UserRole.PROVIDER,UserRole.ADMIN),
+  mealsController.getProviders
+);
 
-router.get('/providers',
-    mealsController.getProviders
-)
+router.get("/:id", mealsController.getMealById);
 
-router.get('/providers/:id',
-    mealsController.getProviderById
-)
+router.get("/providers/:id", mealsController.getProviderById);
 
 export const mealsRoutes = router;

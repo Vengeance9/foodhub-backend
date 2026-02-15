@@ -6,7 +6,8 @@ import { get } from "http";
 
 const getAllMeals = async(req:Request,res:Response)=>{
     try{
-    const search = req.query
+    const search = req.query.search
+    console.log("Search query:", search)
     const searchString = typeof search ==='string'?search:undefined
     const name = req.query.name as string
     const description = req.query.description as string
@@ -17,10 +18,13 @@ const getAllMeals = async(req:Request,res:Response)=>{
     const {page,skip,limit,sortBy,sortOrder} = pagination(req.query)
 
 
-    const result = await mealService.getAllMeals({search:searchString,name,description,isAvailable,category,reviews,ratings,page,skip,limit,sortBy,sortOrder})  
+    const result = await mealService.getAllMeals({search:searchString,name,description,isAvailable,category,reviews,ratings,page,skip,limit,sortBy,sortOrder}) 
+   // console.log(result) 
     return res.status(200).json({data:result,message:'Meals fetched successfully'})
+
     }
-    catch(error){
+    catch(error:any){
+        console.log(error.message)
         return res.status(500).json({message:'Something went wrong',error}) 
     }
 }
@@ -32,17 +36,22 @@ const getMealById = async(req:Request,res:Response)=>{
         return res.status(400).json({message:'Meal id is required'})
     }
     const result = await mealService.getMealById(id as string)
-    return res.status(200).json({data:result,message:'Meal fetched successfully'})
+    return res.status(200).json({data:result,message:'Meal fetched ya ya successfully'})
+    
 
-    }catch(error){
+    }catch(error:any){
+        console.log(error.message)
         return res.status(500).json({message:'Something went wrong',error}) 
     }
 }
 
 const getProviders = async(req:Request,res:Response)=>{
     try{
+      const userId = req.user?.id
+      console.log("userId:", userId)
       const result = await mealService.getProviders()
-        return res.status(200).json({data:result,message:'Providers fetched successfully'})
+      console.log(result)
+      return res.status(200).json({data:result,message:'Providers fetched successfully'})
     }
     catch(error){
         return res.status(500).json({message:'Something went wrong',error}) 

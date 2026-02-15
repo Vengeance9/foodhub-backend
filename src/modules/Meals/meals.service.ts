@@ -2,6 +2,7 @@ import { integer } from './../../../node_modules/effect/src/Config';
 import { string } from "better-auth"
 import { prisma } from "../../lib/prisma"
 import { get } from 'http';
+import { Prisma } from '../../../generated/prisma/client';
 
 
 
@@ -39,43 +40,75 @@ const getAllMeals = async ({
     if(search){
         andConditions.push({
             OR:[
-                {name:{contains:search,mode:'insensitive'}},
-                {description:{contains:search,mode:'insensitive'}},
+                {meal:{name:{contains:search,mode:'insensitive'}}},
+                {meal:{description:{contains:search,mode:'insensitive'}}},
+                {provider:{restaurantName:{contains:search,mode:'insensitive'}}}
             ]
         })
     }
-    if(ratings){
-        andConditions.push({reviews:{some:{ratings:{gte:ratings}}}})
+    
+    console.log("Search condition:", search);
+    if (typeof ratings === "number" && !isNaN(ratings)) {
+      andConditions.push({
+            provider: {
+              reviews: {
+                some: {
+                  rating: {
+                    gte: ratings,
+                  },
+                },
+              },
+            },
+      });
     }
 
+
     if(category){
-        andConditions.push({category:{name:{equals:category,mode:'insensitive'}}})
+        andConditions.push({meal:{category:{name:{equals:category,mode:'insensitive'}}}})
     }
 
     if(typeof isAvailable==='boolean'){
-        andConditions.push({providers:{some:{isAvailable}}})
+        andConditions.push({isAvailable})
     }
    
-    
-  const result = await prisma.meal.findMany({
+    console.log(
+      "Final WHERE conditions:",
+      JSON.stringify(andConditions, null, 2)
+    );
+  const result = await prisma.providerMeal.findMany({
     take: limit,
     skip,
     where: {
       AND: andConditions,
     },
-    orderBy: {
-      [sortBy]: sortOrder,
-    },
-    include: {
-      category: true,
-      reviews: true,
-      provider: {
-        where: { isAvailable: true },
+    orderBy:
+      sortBy === "createdAt"
+        ? { meal: { createdAt: sortOrder as Prisma.SortOrder } } // createdAt is in Meal model
+        : sortBy === "price"
+        ? { price: sortOrder as 'asc' | 'desc' } // price is directly in ProviderMeal model
+        : { [sortBy]: sortOrder as 'asc' | 'desc' }, // For other fields like 'name' which are in Meal model
+    select: {
+      id: true,
+      price: true,
+      isAvailable: true,
+      meal: {
         select: {
-          price: true,
-          provider: {
+          name: true,
+          description: true,
+          category: {
             select: {
-              restaurantName: true,
+              name: true,
+            },
+          },
+        },
+      },
+      provider: {
+        select: {
+          id: true,
+          restaurantName: true,
+          reviews: {
+            select: {
+              rating: true,
             },
           },
         },
@@ -83,7 +116,7 @@ const getAllMeals = async ({
     },
   });
 
-  const total = await prisma.meal.count({
+  const total = await prisma.providerMeal.count({
     where: {
       AND: andConditions,
     },
@@ -105,7 +138,6 @@ const getMealById = async (id: string) => {
         where: { id },
         include: {
         category: true,
-        reviews: true,
         provider: {
             where: { isAvailable: true },
             select: {
@@ -113,6 +145,9 @@ const getMealById = async (id: string) => {
             provider: {
                 select: {
                 restaurantName: true,
+                reviews:{
+                  select:{rating:true,}
+                }
                 },
             },
             },
@@ -126,10 +161,12 @@ const getMealById = async (id: string) => {
 const getProviders = async()=>{
     const providers = await prisma.provider.findMany({
         select:{
+            id:true,
             restaurantName:true,
             isOpen:true,
             description:true,
             createdAt:true,
+            image:true
         },   
     })
     return providers
@@ -137,7 +174,7 @@ const getProviders = async()=>{
 
 const getProviderById = async (
   providerId: string,
-  categoryName?: string // optional (when clicking buttons)
+  categoryName?: string 
 ) => {
   const provider = await prisma.provider.findUnique({
     where: { id: providerId },
@@ -147,6 +184,20 @@ const getProviderById = async (
       restaurantName: true,
       description: true,
       isOpen: true,
+      image:true,
+      cuisineType:true,
+      reviews:{
+        select:{
+          id:true,
+          rating:true,
+          comment:true,
+          user:{
+            select:{
+              name:true
+            }
+          }
+        }
+      },
 
       meals: {
         where: {
@@ -160,12 +211,14 @@ const getProviderById = async (
           }),
         },
         select: {
+          id:true,
           price: true,
           meal: {
             select: {
               id: true,
               name: true,
               description: true,
+              
 
               category: {
                 select: {
@@ -174,14 +227,7 @@ const getProviderById = async (
                 },
               },
 
-              reviews: {
-                select: {
-                  id: true,
-                  rating: true,
-                  comment: true,
-                  createdAt: true,
-                },
-              },
+             
             },
           },
         },
@@ -189,7 +235,18 @@ const getProviderById = async (
     },
   });
 
-  return provider;
+  if(!provider)return null
+  let totalRating = 0
+
+  const reviews = provider.reviews.map(review => {
+    review.rating && (totalRating += review.rating)
+  })
+  const averageRating = provider.reviews.length > 0 ? totalRating / provider.reviews.length : null
+
+ 
+
+  return {
+    ...provider,averageRating}
 };
 
 
