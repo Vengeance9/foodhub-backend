@@ -11,6 +11,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  //url = env("DATABASE_URL")
 }
 
 model Profile {
@@ -27,7 +28,7 @@ model Profile {
 
 model Provider {
   id             String @id @default(uuid())
-  userId         String @unique
+  userId         String 
   user           User   @relation(fields: [userId], references: [id])
 
   restaurantName String
@@ -37,7 +38,8 @@ model Provider {
   phone          String
   website        String?
   cuisineType    String[]
-  //reviews        Review[]
+  image          String?
+  reviews        Review[]
 
   meals          ProviderMeal[]
   orders         Order[]
@@ -68,9 +70,10 @@ model ProviderMeal {
   mealId      String
   provider    Provider @relation(fields: [providerId], references: [id])
   meal        Meal            @relation(fields: [mealId], references: [id])
+  image       String?
   orderItems  OrderItem[]
   cartItems   CartItem[]
-  reviews     Review[]
+  
   isAvailable Boolean @default(true)
   price       Int
   @@unique([providerId, mealId])
@@ -139,18 +142,20 @@ model CartItem {
 model Review {
   id     String @id @default(uuid())
   userId String
-  providerMealId String
-  //providerId     String
+  
+  providerId     String
 
   user User @relation(fields: [userId], references: [id])
-  providerMeal ProviderMeal @relation(fields: [providerMealId], references: [id])
-  //provider     Provider     @relation(fields:[providerId], references:[id])
+  
+  provider     Provider     @relation(fields:[providerId], references:[id])
 
-  rating  Int
+  rating  Int?
   comment String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, providerId])
 }
 
 
@@ -163,7 +168,7 @@ model User {
   role          Role @default(CUSTOMER)
   isActive  Boolean  @default(true)
   profile   Profile?
-  provider  Provider?
+  provider  Provider[]
   orders    Order[]
   reviews   Review[]
   createdAt     DateTime  @default(now())
