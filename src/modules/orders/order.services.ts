@@ -7,25 +7,29 @@ const addToCart = async(
   userId: string,
   providerMealId: string
 )=>{
+  let message = ""
   const providerMeal = await prisma.providerMeal.findUnique({
     where:{
-      id: providerMealId
+      id: providerMealId 
     }
   })
   if(!providerMeal  || !providerMeal.isAvailable){
-    throw new Error("Meal not found")
+    return message = "Meal not found"
   }
 
   const existingCart= await prisma.cart.findUnique({
     where:{
-      userId
+      userId,
+    },
+    select:{
+      providerId:true
     }
   })
 
   if (existingCart && existingCart.providerId !== providerMeal.providerId) {
-    throw new Error(
-      "You can only add items from one restaurant at a time. Clear your cart first?"
-    );
+    return message =  "You can only add items from one restaurant at a time. Clear your cart first?"
+  }else{
+    message = "Items added to cart successfully"
   }
 
   const cart = await prisma.cart.upsert({
@@ -37,7 +41,7 @@ const addToCart = async(
     }
   })
 
-  return await prisma.cartItem.upsert({
+  const cart2 = await prisma.cartItem.upsert({
     where:{
       cartId_providerMealId:{
         cartId: cart.id,
@@ -54,14 +58,44 @@ const addToCart = async(
       
     }
   })
+  return {message, cartItem: cart2}
 }
 
+
+
+const clearCart = async(userId:string)=>{
+  const cart = await prisma.cart.findUnique({
+    where:{
+      userId
+    }
+  })
+  if(cart){
+    await prisma.cartItem.deleteMany({
+      where:{
+        cartId: cart.id
+      }
+    })
+    await prisma.cart.delete({
+      where:{
+        id: cart.id
+      }
+    })
+    return { message: "Cart cleared successfully" };
+  }else{
+    return { message: "Cart is already empty" };
+  }
+}
+
+
+
+
 const getCart = async(userId:string)=>{
-  const cart = await prisma.cart.findUniqueOrThrow({
+  const cart = await prisma.cart.findUnique({
     where:{
       userId
     },
     select:{
+      id:true,
       items:{
         select:{
           providerMeal:{
@@ -77,7 +111,8 @@ const getCart = async(userId:string)=>{
                   restaurantName: true
                 }
               },
-              price:true
+              price:true,
+              image:true
             }
           },
           quantity:true
@@ -86,6 +121,10 @@ const getCart = async(userId:string)=>{
     }
   })
   let totalAmount = 0;
+
+  if(!cart || cart.items.length ===0){
+    return {cart:null,totalAmount:0}
+  }
 
   const orderItems = cart.items.map((item)=>{
     totalAmount += item.quantity * item.providerMeal.price
@@ -97,17 +136,20 @@ const getCart = async(userId:string)=>{
 const checkOutOrder = async (
   orderData: {
     deliveryAddress: string;
-    paymentMethod: string;
+    paymentMethod?: string;
     contact: string;
   },
   userId: string,
-  providerId: string
+  
 ) => {
+  let message = ''
   const cart = await prisma.cart.findUnique({
     where:{
       userId
     },
-    include:{
+    select:{
+      id:true,
+      providerId:true,
       items:{
         include:{
           providerMeal:true
@@ -117,7 +159,7 @@ const checkOutOrder = async (
   })
 
   if(!cart || cart.items.length ===0){
-    throw new Error("Cart is empty")
+    return message = "Cart is empty"
   }
   let totalAmount = 0;
 
@@ -152,9 +194,15 @@ const checkOutOrder = async (
         cartId: cart.id
       }
     })
+    await tx.cart.delete({
+      where:{
+        id: cart.id
+      }
+    })
     return newOrder
   })
   return order
+  
 };
 
 
@@ -241,4 +289,4 @@ const getOrderDetails = async (orderId: string, userId: string) => {
   return result;
 };
 
-export const orderServices = { checkOutOrder, getOrders, getOrderDetails, addToCart,getCart };
+export const orderServices = { checkOutOrder, getOrders, getOrderDetails, addToCart,getCart, clearCart };
