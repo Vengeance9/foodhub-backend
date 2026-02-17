@@ -20,7 +20,7 @@ export const auth = betterAuth({
   }),
   baseURL: process.env.BETTER_AUTH_URL!,
   redirectTo: process.env.APP_URL!,
-  trustedOrigins: [process.env.APP_URL!, "http://localhost:3001"],
+  trustedOrigins: [process.env.APP_URL!],
 
   user: {
     additionalFields: {
@@ -95,7 +95,7 @@ Support Team`,
               </p>
 
               <div style="text-align:center; margin:30px 0;">
-                <a href="${modifiedUrl.toString()}"> 
+                <a href="${modifiedUrl.toString()}" 
                    style="background:#2563eb; color:#ffffff; text-decoration:none; padding:14px 28px; border-radius:6px; font-size:16px; display:inline-block;">
                   Verify Email Address
                 </a>
