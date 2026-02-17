@@ -16,9 +16,30 @@ console.log("Better Auth URL:", process.env.BETTER_AUTH_URL);
 console.log("App URL:", process.env.APP_URL);
 console.log("Database URL:", process.env.BACKEND_PORT);
 
+// app.use(
+//   cors({
+//     origin: [`${process.env.APP_URL}`,`${process.env.APP_URL}/`],
+//     credentials: true,
+//   })
+// );
 app.use(
   cors({
-    origin: [`${process.env.APP_URL}`,`${process.env.APP_URL}/`],
+    origin: function (origin, callback) {
+      
+      if (!origin || origin.startsWith("http://localhost")) {
+        return callback(null, true);
+      }
+
+      
+      if (
+        origin === process.env.APP_URL ||
+        origin.endsWith(".vercel.app") 
+      ) {
+        return callback(null, true);
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
@@ -38,3 +59,5 @@ app.use("/categories", categoryRoutes);
 app.listen(port, () => {
   console.log(`Better Auth app listening on port ${port}`);
 });
+
+export default app;
