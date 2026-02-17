@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.providerServices = void 0;
-const enums_1 = require("./../../../generated/prisma/enums");
+const client_1 = require("@prisma/client");
 //import { OrderStatus } from "@prisma/enums";
 const prisma_1 = require("../../lib/prisma");
 const auth_1 = require("../../middleware/auth");
@@ -48,7 +48,7 @@ const getMyProviders = async (userId, search) => {
                     }
                     : undefined,
             },
-            status: enums_1.OrderStatus.DELIVERED,
+            status: client_1.OrderStatus.DELIVERED,
         },
         _sum: {
             totalAmount: true,

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mealService = void 0;
 const prisma_1 = require("../../lib/prisma");
+//import { Prisma } from '@prisma/client';
 const getAllMeals = async ({ search, name, description, isAvailable, category, reviews, ratings, page, limit, skip, sortBy, sortOrder, }) => {
     const andConditions = [];
     if (search) {

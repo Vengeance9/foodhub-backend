@@ -1,4 +1,4 @@
-import { OrderStatus } from "./../../../generated/prisma/enums";
+import { OrderStatus } from "@prisma/client";
 //import { OrderStatus } from "@prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { UserRole } from "../../middleware/auth";
