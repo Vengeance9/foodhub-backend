@@ -1,8 +1,8 @@
 import auth, { UserRole } from "../../middleware/auth.js";
 import express, { Router } from "express";
 
-import { providerController } from "./provider.controller";
-import upload from "../../middleware/upload";
+import { providerController } from "./provider.controller.js";
+import upload from "../../middleware/upload.js";
 
 const router = express.Router();
 

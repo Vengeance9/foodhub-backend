@@ -2,13 +2,13 @@
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js";
-import { providerRoutes } from "./modules/provider/provider.routes";
-import { orderRoutes } from "./modules/orders/order.routes";
-import { adminRoutes } from "./modules/admin/admin.routes";
-import { reviewRoutes } from "./modules/reviews/reviews.routes";
-import { categoryRoutes } from "./modules/category/category.routes";
+import { providerRoutes } from "./modules/provider/provider.routes.js";
+import { orderRoutes } from "./modules/orders/order.routes.js";
+import { adminRoutes } from "./modules/admin/admin.routes.js";
+import { reviewRoutes } from "./modules/reviews/reviews.routes.js";
+import { categoryRoutes } from "./modules/category/category.routes.js";
 import cors from "cors";
-import { mealsRoutes } from "./modules/meals/meals.routes";
+import { mealsRoutes } from "./modules/meals/meals.routes.js";
 
 const app = express();
 const port = process.env.BACKEND_PORT;

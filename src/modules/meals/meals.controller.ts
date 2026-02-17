@@ -1,7 +1,7 @@
 
 import { Request, Response } from "express";
-import { mealService } from "./meals.service";
-import { pagination } from "../../helpers/pagination";
+import { mealService } from "./meals.service.js";
+import { pagination } from "../../helpers/pagination.js";
 
 
 const getAllMeals = async(req:Request,res:Response)=>{

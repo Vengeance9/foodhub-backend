@@ -1,4 +1,4 @@
-import { mealService } from "./meals.service";
+import { mealService } from "./meals.service.js";
 import { pagination } from "../../helpers/pagination";
 const getAllMeals = async (req, res) => {
     try {

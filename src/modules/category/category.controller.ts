@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { categoryService } from "./category.services";
+import { categoryService } from "./category.services.js";
 
 
 

@@ -1,5 +1,5 @@
 import express from "express";
-import { mealsController } from "./meals.controller";
+import { mealsController } from "./meals.controller.js";
 //import auth, { UserRole } from "../../middleware/auth.js";
 
 const router = express.Router();
