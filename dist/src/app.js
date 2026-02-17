@@ -1,4 +1,4 @@
-import { mealsRoutes } from './modules/Meals/meals.routes';
+import { mealsRoutes } from './modules/meals/meals.routes';
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
