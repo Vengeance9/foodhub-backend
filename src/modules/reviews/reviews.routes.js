@@ -1,4 +1,4 @@
-import auth, { UserRole } from "../../middleware/auth";
+import auth, { UserRole } from "../../middleware/auth.js";
 import express from "express";
 import { reviewController } from "./reviews.controller";
 const router = express.Router();

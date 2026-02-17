@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 const getAllUsers = async ({ search, name, role, isActive, page, skip = 0, limit = 10, sortBy = "createdAt", sortOrder = "desc", }) => {
     const andConditions = [];
     if (search) {

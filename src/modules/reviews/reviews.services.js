@@ -1,39 +1,39 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 const reviewProvider = async (userId, providerId, rating, comment) => {
     const isOrdered = await prisma.order.findFirst({
         where: {
             customerId: userId,
-            providerId
-        }
+            providerId,
+        },
     });
     if (!isOrdered)
         throw new Error("You can only review providers you have ordered from.");
     const existingReview = await prisma.review.findFirst({
         where: {
             userId,
-            providerId
+            providerId,
         },
         select: {
-            id: true
-        }
+            id: true,
+        },
     });
     const result = await prisma.review.upsert({
         where: {
             userId_providerId: {
                 userId,
-                providerId
-            }
+                providerId,
+            },
         },
         update: {
             rating,
-            comment
+            comment,
         },
         create: {
             userId,
             providerId,
             rating,
-            comment
-        }
+            comment,
+        },
     });
     if (existingReview)
         return { message: "Review updated successfully", review: result };
@@ -43,7 +43,7 @@ const getMyReviews = async (userId, providerId) => {
     const reviews = await prisma.review.findFirst({
         where: {
             userId,
-            providerId
+            providerId,
         },
         select: {
             id: true,
@@ -51,17 +51,17 @@ const getMyReviews = async (userId, providerId) => {
             comment: true,
             provider: {
                 select: {
-                    restaurantName: true
-                }
-            }
-        }
+                    restaurantName: true,
+                },
+            },
+        },
     });
     return reviews;
 };
 const getAllReviews = async (providerId) => {
     const reviews = await prisma.review.findMany({
         where: {
-            providerId
+            providerId,
         },
         select: {
             id: true,
@@ -69,13 +69,11 @@ const getAllReviews = async (providerId) => {
             comment: true,
             user: {
                 select: {
-                    name: true
-                }
-            }
-        }
+                    name: true,
+                },
+            },
+        },
     });
     return reviews;
 };
-export const reviewServices = { reviewProvider, getMyReviews,
-    getAllReviews
-};
+export const reviewServices = { reviewProvider, getMyReviews, getAllReviews };

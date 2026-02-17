@@ -1,10 +1,10 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 const getCategories = async () => {
     const categories = await prisma.category.findMany({
         select: {
             name: true,
             id: true,
-        }
+        },
     });
     return categories;
 };
@@ -12,8 +12,8 @@ const getCategoryProviders = async (name) => {
     const providers = await prisma.provider.findMany({
         where: {
             cuisineType: {
-                has: name
-            }
+                has: name,
+            },
         },
         select: {
             id: true,
@@ -21,11 +21,11 @@ const getCategoryProviders = async (name) => {
             address: true,
             isOpen: true,
             image: true,
-            createdAt: true
+            createdAt: true,
         },
         orderBy: {
-            createdAt: 'desc'
-        }
+            createdAt: "desc",
+        },
     });
     return providers;
 };
@@ -36,9 +36,9 @@ const getCategoryMeals = async (providerId, category) => {
             isAvailable: true,
             meal: {
                 category: {
-                    name: category
-                }
-            }
+                    name: category,
+                },
+            },
         },
         select: {
             price: true,
@@ -50,15 +50,17 @@ const getCategoryMeals = async (providerId, category) => {
                     description: true,
                     category: {
                         select: {
-                            name: true
-                        }
-                    }
-                }
-            }
-        }
+                            name: true,
+                        },
+                    },
+                },
+            },
+        },
     });
     return meals;
 };
 export const categoryService = {
-    getCategories, getCategoryProviders, getCategoryMeals
+    getCategories,
+    getCategoryProviders,
+    getCategoryMeals,
 };

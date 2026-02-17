@@ -1,12 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tsx watch src/app.ts",
-    "start": "npx tsx src/app.ts",
-    "vercel-build": "prisma generate && tsc --skipLibCheck"
+    "dev": "tsx watch src/app.ts",
+    "start": "node dist/app.js",
+    "vercel-build": "prisma generate && tsc"
   },
   "keywords": [],
   "author": "",

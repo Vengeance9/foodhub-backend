@@ -1,6 +1,6 @@
 import express from "express";
 import { adminController } from "./admin.controller";
-import auth, { UserRole } from "../../middleware/auth";
+import auth, { UserRole } from "../../middleware/auth.js";
 const router = express.Router();
 router.get("/users", auth(UserRole.ADMIN), adminController.getAllUsers);
 router.patch("/users/:id", auth(UserRole.ADMIN), adminController.updateUserRole);

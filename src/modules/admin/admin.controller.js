@@ -1,5 +1,5 @@
 import { adminServices } from "./admin.services";
-import { UserRole } from "../../middleware/auth";
+import { UserRole } from "../../middleware/auth.js";
 import { pagination } from "../../helpers/pagination";
 const getAllUsers = async (req, res) => {
     try {
