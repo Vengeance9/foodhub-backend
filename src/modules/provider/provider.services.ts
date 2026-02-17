@@ -1,7 +1,7 @@
 import { OrderStatus } from "@prisma/client";
 //import { OrderStatus } from "@prisma/enums";
-import { prisma } from "../../lib/prisma";
-import { UserRole } from "../../middleware/auth";
+import { prisma } from "../../lib/prisma.js";
+import { UserRole } from "../../middleware/auth.js";
 
 const register = async (
   userId: string,
@@ -118,7 +118,7 @@ const createMeal = async (
   //   throw new Error("You are not registered as a provider");
   // }
 
-  return prisma.$transaction(async (tx:any) => {
+  return prisma.$transaction(async (tx: any) => {
     const meal = await tx.meal.create({
       data: {
         name: mealData.name,
@@ -221,7 +221,7 @@ const deleteMeal = async (mealId: string, providerId: string) => {
   }
   console.log(provider?.id);
   console.log(mealId);
-  return prisma.$transaction(async (tx:any) => {
+  return prisma.$transaction(async (tx: any) => {
     const meal = await tx.providerMeal.findUnique({
       where: {
         id: mealId,

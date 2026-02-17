@@ -1,6 +1,6 @@
 //import { integer } from './../../../node_modules/effect/src/Config';
 //import { string } from "better-auth"
-import { prisma } from "../../lib/prisma"
+import { prisma } from "../../lib/prisma.js"
 //import { get } from 'http';
 //import { Prisma } from '@prisma/client';
 

@@ -1,52 +1,57 @@
 import { Request, Response } from "express";
-//import { prisma } from "../../lib/prisma";
+//import { prisma } from "../../lib/prisma.js";
 import { reviewServices } from "./reviews.services";
 //import { get } from "http";
 
+const reviewProvider = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const providerId = req.params.providerId;
+    const { rating, comment } = req.body;
 
+    // console.log("userId:", userId);
+    // console.log("providerId:", providerId);
+    // console.log('This is the rating',rating)
+    // console.log('This is the comment',comment)
+    const result = await reviewServices.reviewProvider(
+      userId!,
+      providerId as string,
+      rating,
+      comment
+    );
+    // console.log(result)
+    return res.status(201).json({ data: result, message: result.message });
+  } catch (e: any) {
+    console.log(e.message);
+    return res.status(500).json({ message: e.message });
+  }
+};
 
-const reviewProvider = async(req: Request, res: Response) => {
-    try{
-        const userId = req.user?.id
-        const providerId = req.params.providerId
-        const {rating, comment } = req.body;
-    
-        // console.log("userId:", userId);
-        // console.log("providerId:", providerId);
-        // console.log('This is the rating',rating)
-        // console.log('This is the comment',comment)
-        const result = await reviewServices.reviewProvider(userId!, providerId as string, rating, comment)
-        // console.log(result)
-        return res.status(201).json({data:result,message:result.message})
-    
-        }catch(e:any){
-            console.log(e.message)
-            return res.status(500).json({message: e.message})
-        }
-}
+const getMyReviews = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const providerId = req.params.providerId;
 
-const getMyReviews = async(req: Request, res: Response) => {
-    const userId = req.user?.id
-    const providerId = req.params.providerId
+  try {
+    const result = await reviewServices.getMyReviews(
+      userId!,
+      providerId as string
+    );
+    return res.status(200).json({ data: result });
+  } catch (e: any) {
+    console.log(e.message);
+    return res.status(500).json({ message: e.message });
+  }
+};
 
-    try{
-        const result = await reviewServices.getMyReviews(userId!, providerId as string)
-        return res.status(200).json({data:result})
-    }catch(e:any){
-        console.log(e.message)
-        return res.status(500).json({message: e.message})
-    }
-}
-
-const getAllReviews = async(req: Request, res: Response) => {
-    const providerId = req.params.providerId
-    try{
-        const result = await reviewServices.getAllReviews(providerId as string)
-       // console.log(result)
-        return res.status(200).json({data:result})
-    }catch(e:any){
-        console.log(e.message)
-        return res.status(500).json({message: e.message})
-    }
-}
-export const reviewController = { reviewProvider, getMyReviews, getAllReviews}
+const getAllReviews = async (req: Request, res: Response) => {
+  const providerId = req.params.providerId;
+  try {
+    const result = await reviewServices.getAllReviews(providerId as string);
+    // console.log(result)
+    return res.status(200).json({ data: result });
+  } catch (e: any) {
+    console.log(e.message);
+    return res.status(500).json({ message: e.message });
+  }
+};
+export const reviewController = { reviewProvider, getMyReviews, getAllReviews };

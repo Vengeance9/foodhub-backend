@@ -1,5 +1,5 @@
-import { prisma } from "../../lib/prisma";
-import { UserRole } from "../../middleware/auth";
+import { prisma } from "../../lib/prisma.js";
+import { UserRole } from "../../middleware/auth.js";
 
 const getAllUsers = async ({
   search,
@@ -67,7 +67,7 @@ const getAllUsers = async ({
   });
 
   const userWithOrderCounts = await Promise.all(
-    users.map(async (user:any) => {
+    users.map(async (user: any) => {
       const orderCount = await prisma.order.count({
         where: {
           customerId: user.id,

@@ -1,71 +1,70 @@
+import { prisma } from "../../lib/prisma.js";
 
-import { prisma } from "../../lib/prisma"
+const getCategories = async () => {
+  const categories = await prisma.category.findMany({
+    select: {
+      name: true,
+      id: true,
+    },
+  });
+  return categories;
+};
 
-const getCategories = async()=>{
-    const categories = await prisma.category.findMany({
-       select:{
-        name:true,
-        id:true,
-       }
-    })
-    return categories
-}
+const getCategoryProviders = async (name: string) => {
+  const providers = await prisma.provider.findMany({
+    where: {
+      cuisineType: {
+        has: name,
+      },
+    },
+    select: {
+      id: true,
+      restaurantName: true,
+      address: true,
+      isOpen: true,
+      image: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return providers;
+};
 
-const getCategoryProviders = async(name:string)=>{
-    const providers = await prisma.provider.findMany({
-        where:{
-            cuisineType:{
-                has:name
-            }
+const getCategoryMeals = async (providerId: string, category: string) => {
+  const meals = await prisma.providerMeal.findMany({
+    where: {
+      providerId,
+      isAvailable: true,
+      meal: {
+        category: {
+          name: category,
         },
-        select:{
-            id:true,
-            restaurantName:true,
-            address:true,
-            isOpen:true,
-            image:true,
-            createdAt:true
+      },
+    },
+    select: {
+      price: true,
+      image: true,
+      id: true,
+      meal: {
+        select: {
+          name: true,
+          description: true,
+          category: {
+            select: {
+              name: true,
+            },
+          },
         },
-        orderBy:{
-            createdAt:'desc'
-        }
-    })
-        return providers
-}
-
-
-const getCategoryMeals = async(providerId:string,category:string)=>{
-    const meals = await prisma.providerMeal.findMany({
-        where:{
-            providerId,
-            isAvailable:true,
-            meal:{
-                category:{
-                    name:category
-                }
-            }
-        },
-        select:{
-            price:true,
-            image:true,
-            id:true,
-            meal:{
-                select:{
-                    
-                    name:true,
-                    description:true,
-                    category:{
-                        select:{
-                            name:true
-                        }
-                    }
-                }
-            }
-        }
-    })
-    return meals
-}
+      },
+    },
+  });
+  return meals;
+};
 
 export const categoryService = {
-    getCategories,getCategoryProviders,getCategoryMeals
-}
+  getCategories,
+  getCategoryProviders,
+  getCategoryMeals,
+};

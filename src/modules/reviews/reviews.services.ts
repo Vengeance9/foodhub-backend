@@ -1,85 +1,88 @@
-import { prisma } from "../../lib/prisma"
+import { prisma } from "../../lib/prisma.js";
 
+const reviewProvider = async (
+  userId: string,
+  providerId: string,
+  rating?: number,
+  comment?: string
+) => {
+  const isOrdered = await prisma.order.findFirst({
+    where: {
+      customerId: userId,
+      providerId,
+    },
+  });
+  if (!isOrdered)
+    throw new Error("You can only review providers you have ordered from.");
+  const existingReview = await prisma.review.findFirst({
+    where: {
+      userId,
+      providerId,
+    },
+    select: {
+      id: true,
+    },
+  });
 
+  const result = await prisma.review.upsert({
+    where: {
+      userId_providerId: {
+        userId,
+        providerId,
+      },
+    },
+    update: {
+      rating,
+      comment,
+    },
+    create: {
+      userId,
+      providerId,
+      rating,
+      comment,
+    },
+  });
+  if (existingReview)
+    return { message: "Review updated successfully", review: result };
+  return { message: "Review submitted successfully", review: result };
+};
 
-const reviewProvider = async(userId:string, providerId:string, rating?:number, comment?:string)=>{
-    const isOrdered = await prisma.order.findFirst({
-        where:{
-            customerId:userId,
-            providerId
-        }
-    })
-    if(!isOrdered) throw new Error("You can only review providers you have ordered from.")
-    const existingReview = await prisma.review.findFirst({
-        where:{
-            userId,
-            providerId
+const getMyReviews = async (userId: string, providerId: string) => {
+  const reviews = await prisma.review.findFirst({
+    where: {
+      userId,
+      providerId,
+    },
+    select: {
+      id: true,
+      rating: true,
+      comment: true,
+      provider: {
+        select: {
+          restaurantName: true,
         },
-        select:{
-            id:true
-        }
-    })
-   
-    const result = await prisma.review.upsert({
-        where: {
-            userId_providerId: {
-                userId,
-                providerId
-            }
-        },
-        update: {
-            rating,
-            comment
-        },
-        create: {
-            userId,
-            providerId,
-            rating,
-            comment
-        }
-    })
-    if(existingReview) return { message: "Review updated successfully", review: result }
-    return { message: "Review submitted successfully", review: result }
-}
+      },
+    },
+  });
+  return reviews;
+};
 
-const getMyReviews = async(userId:string, providerId:string) => {
-    const reviews = await prisma.review.findFirst({
-        where:{
-            userId,
-            providerId
+const getAllReviews = async (providerId: string) => {
+  const reviews = await prisma.review.findMany({
+    where: {
+      providerId,
+    },
+    select: {
+      id: true,
+      rating: true,
+      comment: true,
+      user: {
+        select: {
+          name: true,
         },
-        select:{
-            id:true,
-            rating:true,
-            comment:true,
-            provider:{
-                select:{
-                    restaurantName:true
-                }
-            }
-        }
-    })
-    return reviews
-}
-
-const getAllReviews = async(providerId:string)=>{
-    const reviews = await prisma.review.findMany({
-        where:{
-            providerId
-        },
-        select:{
-            id:true,
-            rating:true,
-            comment:true,
-            user:{
-                select:{
-                    name:true
-                }
-            }
-        }
-    })
-    return reviews
-}
-export const reviewServices = { reviewProvider, getMyReviews,
-getAllReviews
-}
+      },
+    },
+  });
+  return reviews;
+};
+export const reviewServices = { reviewProvider, getMyReviews, getAllReviews };
