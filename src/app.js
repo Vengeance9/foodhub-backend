@@ -1,4 +1,4 @@
-import { mealsRoutes } from "./modules/meals/meals.routes";
+//import { mealsRoutes } from "./modules/meals/meals.routes";
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
@@ -8,6 +8,7 @@ import { adminRoutes } from "./modules/admin/admin.routes";
 import { reviewRoutes } from "./modules/reviews/reviews.routes";
 import { categoryRoutes } from "./modules/category/category.routes";
 import cors from "cors";
+import { mealsRoutes } from "./modules/meals/meals.routes";
 const app = express();
 const port = process.env.BACKEND_PORT;
 console.log("Better Auth URL:", process.env.BETTER_AUTH_URL);
