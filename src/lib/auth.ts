@@ -23,9 +23,8 @@ export const auth = betterAuth({
   trustedOrigins: [process.env.APP_URL!,
         "https://foodhub-frontend-gray.vercel.app", // Your main URL
         // If you want to allow all Vercel previews for testing:
-        "https://foodhub-frontend-854uoqt96-mustakimabtahi207-gmailcoms-projects.vercel.app" 
-  
-  ],
+        //"https://foodhub-frontend-854uoqt96-mustakimabtahi207-gmailcoms-projects.vercel.app" 
+  ].filter(Boolean),
 
   user: {
     additionalFields: {
