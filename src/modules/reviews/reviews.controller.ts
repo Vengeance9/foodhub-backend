@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { prisma } from "../../lib/prisma";
+//import { prisma } from "../../lib/prisma";
 import { reviewServices } from "./reviews.services";
-import { get } from "http";
+//import { get } from "http";
 
 
 

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { categoryService } from "./category.services";
-import { get } from "http";
+
 
 
 const getCategories = async(req:Request,res:Response)=>{

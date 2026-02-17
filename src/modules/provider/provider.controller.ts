@@ -1,7 +1,7 @@
 
 import { Request, Response } from "express";
 import { providerServices } from "./provider.services";
-import { prisma } from "../../lib/prisma";
+//import { prisma } from "../../lib/prisma";
 import cloudinary from "../../config/cloudinary";
 
 
