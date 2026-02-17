@@ -18,7 +18,7 @@ console.log("Database URL:", process.env.BACKEND_PORT);
 
 app.use(
   cors({
-    origin: `${process.env.APP_URL}`,
+    origin: [`${process.env.APP_URL}`,`${process.env.APP_URL}/`],
     credentials: true,
   })
 );
