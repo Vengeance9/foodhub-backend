@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx tsx watch src/app.ts",
-    "start": "npx tsx src/app.ts"
+    "start": "npx tsx src/app.ts",
+    "vercel-build": "prisma generate && tsc --skipLibCheck"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
     "cloudinary": "^2.9.0",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
+    "effect": "^3.19.18",
     "express": "^5.2.1",
     "multer": "^2.0.2",
     "nodemailer": "^8.0.1",

@@ -2,7 +2,7 @@ import { integer } from './../../../node_modules/effect/src/Config';
 import { string } from "better-auth"
 import { prisma } from "../../lib/prisma"
 import { get } from 'http';
-import { Prisma } from '../../../generated/prisma/client';
+import { Prisma } from '@prisma/client';
 
 
 
