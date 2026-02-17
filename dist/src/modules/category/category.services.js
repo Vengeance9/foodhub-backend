@@ -1,0 +1,67 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.categoryService = void 0;
+const prisma_1 = require("../../lib/prisma");
+const getCategories = async () => {
+    const categories = await prisma_1.prisma.category.findMany({
+        select: {
+            name: true,
+            id: true,
+        }
+    });
+    return categories;
+};
+const getCategoryProviders = async (name) => {
+    const providers = await prisma_1.prisma.provider.findMany({
+        where: {
+            cuisineType: {
+                has: name
+            }
+        },
+        select: {
+            id: true,
+            restaurantName: true,
+            address: true,
+            isOpen: true,
+            image: true,
+            createdAt: true
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+    return providers;
+};
+const getCategoryMeals = async (providerId, category) => {
+    const meals = await prisma_1.prisma.providerMeal.findMany({
+        where: {
+            providerId,
+            isAvailable: true,
+            meal: {
+                category: {
+                    name: category
+                }
+            }
+        },
+        select: {
+            price: true,
+            image: true,
+            id: true,
+            meal: {
+                select: {
+                    name: true,
+                    description: true,
+                    category: {
+                        select: {
+                            name: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+    return meals;
+};
+exports.categoryService = {
+    getCategories, getCategoryProviders, getCategoryMeals
+};

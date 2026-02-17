@@ -2,7 +2,7 @@ import { integer } from './../../../node_modules/effect/src/Config';
 import { string } from "better-auth"
 import { prisma } from "../../lib/prisma"
 import { get } from 'http';
-import { Prisma } from '@prisma/client';
+//import { Prisma } from '@prisma/client';
 
 
 
@@ -83,7 +83,7 @@ const getAllMeals = async ({
     },
     orderBy:
       sortBy === "createdAt"
-        ? { meal: { createdAt: sortOrder as Prisma.SortOrder } } // createdAt is in Meal model
+        ? { meal: { createdAt: sortOrder as 'asc'|'desc' } } // createdAt is in Meal model
         : sortBy === "price"
         ? { price: sortOrder as 'asc' | 'desc' } // price is directly in ProviderMeal model
         : { [sortBy]: sortOrder as 'asc' | 'desc' }, // For other fields like 'name' which are in Meal model
@@ -238,7 +238,7 @@ const getProviderById = async (
   if(!provider)return null
   let totalRating = 0
 
-  const reviews = provider.reviews.map(review => {
+  const reviews = provider.reviews.map((review:any) => {
     review.rating && (totalRating += review.rating)
   })
   const averageRating = provider.reviews.length > 0 ? totalRating / provider.reviews.length : null

@@ -118,7 +118,7 @@ const createMeal = async (
   //   throw new Error("You are not registered as a provider");
   // }
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx:any) => {
     const meal = await tx.meal.create({
       data: {
         name: mealData.name,
@@ -221,7 +221,7 @@ const deleteMeal = async (mealId: string, providerId: string) => {
   }
   console.log(provider?.id);
   console.log(mealId);
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx:any) => {
     const meal = await tx.providerMeal.findUnique({
       where: {
         id: mealId,

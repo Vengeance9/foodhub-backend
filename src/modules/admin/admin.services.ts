@@ -67,7 +67,7 @@ const getAllUsers = async ({
   });
 
   const userWithOrderCounts = await Promise.all(
-    users.map(async (user) => {
+    users.map(async (user:any) => {
       const orderCount = await prisma.order.count({
         where: {
           customerId: user.id,

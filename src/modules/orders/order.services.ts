@@ -126,7 +126,7 @@ const getCart = async(userId:string)=>{
     return {cart:null,totalAmount:0}
   }
 
-  const orderItems = cart.items.map((item)=>{
+  const orderItems = cart.items.map((item:any)=>{
     totalAmount += item.quantity * item.providerMeal.price
   })
   return {cart,totalAmount}
@@ -163,7 +163,7 @@ const checkOutOrder = async (
   }
   let totalAmount = 0;
 
-  const orderItems = cart.items.map((item)=>{
+  const orderItems = cart.items.map((item:any)=>{
     totalAmount += item.quantity * item.providerMeal.price
 
     return{
@@ -175,7 +175,7 @@ const checkOutOrder = async (
     }
   })
 
-  const order = await prisma.$transaction(async (tx) => {
+  const order = await prisma.$transaction(async (tx:any) => {
     const newOrder = await tx.order.create({
       data:{
         customerId:userId,
