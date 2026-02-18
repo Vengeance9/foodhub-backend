@@ -34,6 +34,14 @@ export const auth = betterAuth({
     crossSubDomainCookies: {
       enabled: true,
     },
+    cookieSettings: {
+      sessionToken: {
+        attributes: {
+          sameSite: "none", 
+          secure: true, 
+        },
+      },
+    },
   },
 
   user: {
@@ -142,5 +150,5 @@ Support Team`,
       console.log("Message sent: %s", info.messageId);
     },
   },
-// plugins: [nextCookies()],
+  // plugins: [nextCookies()],
 });
