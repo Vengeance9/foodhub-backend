@@ -37,15 +37,12 @@ export const auth = betterAuth({
     crossSubDomainCookies: {
       enabled: true,
     },
-    cookieSettings: {
-      sessionToken: {
-        attributes: {
+        defaultCookieAttributes: {
           sameSite: "none", 
           secure: true, 
-          domain:".vercel.app"
-        },
-      },
-    },
+          domain:".vercel.app",
+          httpOnly: true,
+        }, 
   },
 
   user: {
