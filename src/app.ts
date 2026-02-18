@@ -23,6 +23,7 @@ console.log("Database URL:", process.env.BACKEND_PORT);
 //   })
 // );
 app.use(
+  "/*",
   cors({
     origin: function (origin, callback) {
       if (!origin || origin.startsWith("http://localhost")) {
