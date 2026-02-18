@@ -20,11 +20,14 @@ export const auth = betterAuth({
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
   baseURL: process.env.BETTER_AUTH_URL!,
+  secret: process.env.BETTER_AUTH_SECRET!,
   redirectTo: process.env.APP_URL!,
   trustedOrigins: [
     process.env.APP_URL!,
     "https://foodhub-frontend-gray.vercel.app",
     "https://foodhub-frontend*.vercel.app",
+   // "https://localhost:3000",
+   // "http://localhost:4000",
   ],
   advanced: {
     useSecureCookies: true,
@@ -39,6 +42,7 @@ export const auth = betterAuth({
         attributes: {
           sameSite: "none", 
           secure: true, 
+          domain:".vercel.app"
         },
       },
     },
