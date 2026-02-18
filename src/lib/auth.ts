@@ -26,6 +26,8 @@ export const auth = betterAuth({
     process.env.APP_URL!,
     "https://foodhub-frontend-gray.vercel.app",
     "https://foodhub-frontend*.vercel.app",
+    "https://foodhub-frontend-*.vercel.app",
+    "https://foodhub-frontend-*.vercel.app/api/auth/*",
    // "https://localhost:3000",
    // "http://localhost:4000",
   ],
