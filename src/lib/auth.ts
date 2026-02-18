@@ -27,10 +27,13 @@ export const auth = betterAuth({
     
   ],
   advanced: {
-    useSecureCookies: true, // Required for HTTPS on Vercel
+    useSecureCookies: true,
     crossDomain: {
-      enabled: true, // Allows frontend and backend on different Vercel projects
+      enabled: true, 
     },
+    crossSubDomainCookies: {
+      enabled: true,
+    }
   },
 
   user: {
