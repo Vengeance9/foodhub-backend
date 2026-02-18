@@ -4,7 +4,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 //import { PrismaClient } from "../../generated/prisma/client";
 import { prisma } from "./prisma.js";
 import nodemailer from "nodemailer";
-import { nextCookies } from "better-auth/next-js";
+//import { nextCookies } from "better-auth/next-js";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -142,5 +142,5 @@ Support Team`,
       console.log("Message sent: %s", info.messageId);
     },
   },
-  plugins: [nextCookies()],
+// plugins: [nextCookies()],
 });
