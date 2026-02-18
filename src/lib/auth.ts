@@ -20,11 +20,18 @@ export const auth = betterAuth({
   }),
   baseURL: process.env.BETTER_AUTH_URL!,
   redirectTo: process.env.APP_URL!,
-  trustedOrigins: [process.env.APP_URL!,
-        "https://foodhub-frontend-gray.vercel.app", // Your main URL
-        // If you want to allow all Vercel previews for testing:
-        //"https://foodhub-frontend-854uoqt96-mustakimabtahi207-gmailcoms-projects.vercel.app" 
-  ].filter(Boolean),
+  trustedOrigins: [
+    process.env.APP_URL!,
+    "https://foodhub-frontend-gray.vercel.app", 
+    "https://foodhub-frontend*.vercel.app"
+    
+  ],
+  advanced: {
+    useSecureCookies: true, // Required for HTTPS on Vercel
+    crossDomain: {
+      enabled: true, // Allows frontend and backend on different Vercel projects
+    },
+  },
 
   user: {
     additionalFields: {
@@ -47,7 +54,6 @@ export const auth = betterAuth({
       const modifiedUrl = new URL(url);
       modifiedUrl.searchParams.set("callbackURL", process.env.APP_URL!);
 
-      
       //   const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
       const info = await transporter.sendMail({
         from: `"FoodHub" <${process.env.APP_EMAIL}>`,
