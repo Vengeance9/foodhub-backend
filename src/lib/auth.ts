@@ -4,7 +4,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 //import { PrismaClient } from "../../generated/prisma/client";
 import { prisma } from "./prisma.js";
 import nodemailer from "nodemailer";
-
+//import { nextCookies } from "better-auth/next-js";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -37,12 +37,15 @@ export const auth = betterAuth({
     crossSubDomainCookies: {
       enabled: true,
     },
-        defaultCookieAttributes: {
+    cookieSettings: {
+      sessionToken: {
+        attributes: {
           sameSite: "none", 
           secure: true, 
-          domain:".vercel.app",
-          httpOnly: true,
-        }, 
+          domain:".vercel.app"
+        },
+      },
+    },
   },
 
   user: {
@@ -151,5 +154,5 @@ Support Team`,
       console.log("Message sent: %s", info.messageId);
     },
   },
-   
+  // plugins: [nextCookies()],
 });
