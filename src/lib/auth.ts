@@ -53,8 +53,9 @@ export const auth = betterAuth({
     cookies:{
       session_token:{
         attributes:{
-          sameSite:"none",
+          //sameSite:"none",
           secure:true,
+          httpOnly:true,
           //domain:".vercel.app"
         }
       }
