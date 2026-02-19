@@ -36,9 +36,9 @@ export const auth = betterAuth({
     crossDomain: {
       enabled: true,
     },
-    crossSubDomainCookies: {
-      enabled: true,
-    },
+    // crossSubDomainCookies: {
+    //   enabled: true,
+    // },
     cookieSettings: {
       sessionToken: {
         attributes: {
