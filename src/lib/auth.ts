@@ -25,8 +25,10 @@ export const auth = betterAuth({
   trustedOrigins: [
     process.env.APP_URL!,
     "https://foodhub-frontend-gray.vercel.app",
+    "https://foodhub-frontend-gray*.vercel.app",
     "https://foodhub-frontend*.vercel.app",
     "https://foodhub-frontend-*.vercel.app",
+    "https://foodhub-frontend-*.vercel.app/*",
     "https://foodhub-frontend-*.vercel.app/api/auth/*",
     //"https://localhost:3000",
     //"http://localhost:4000",
@@ -48,6 +50,15 @@ export const auth = betterAuth({
     //     },
     //   },
     // },
+    cookies:{
+      session_token:{
+        attributes:{
+          sameSite:"none",
+          secure:true,
+          //domain:".vercel.app"
+        }
+      }
+    }
   },
 
   user: {
