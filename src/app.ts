@@ -33,6 +33,9 @@ app.use(
       if (origin === process.env.APP_URL || origin.endsWith(".vercel.app")) {
         return callback(null, true);
       }
+      if (origin === `${process.env.APP_URL}` || origin.endsWith("/auth/me")) {
+        return callback(null, true);
+      }
 
       callback(new Error("Not allowed by CORS"));
     },

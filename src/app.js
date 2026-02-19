@@ -15,10 +15,27 @@ const port = process.env.BACKEND_PORT;
 console.log("Better Auth URL:", process.env.BETTER_AUTH_URL);
 console.log("App URL:", process.env.APP_URL);
 console.log("Database URL:", process.env.BACKEND_PORT);
-app.use(cors({
-    origin: `${process.env.APP_URL}`,
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || origin.startsWith("http://localhost")) {
+        return callback(null, true);
+      }
+
+      if (origin === process.env.APP_URL || origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+      if (origin === `${process.env.APP_URL}` || origin.endsWith("/auth/me")) {
+        return callback(null, true);
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
-}));
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.all("/api/auth/*splat", toNodeHandler(auth));
 // Mount express json middleware after Better Auth handler
 // or only apply it to routes that don't interact with Better Auth

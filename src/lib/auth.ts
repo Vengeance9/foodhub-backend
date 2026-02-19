@@ -30,8 +30,8 @@ export const auth = betterAuth({
     "https://foodhub-frontend-*.vercel.app",
     "https://foodhub-frontend-*.vercel.app/*",
     "https://foodhub-frontend-*.vercel.app/api/auth/*",
-    //"https://localhost:3000",
-    //"http://localhost:4000",
+    "https://localhost:3000",
+    "http://localhost:4000",
   ],
   advanced: {
     useSecureCookies: true,
