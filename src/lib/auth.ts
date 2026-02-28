@@ -2,8 +2,9 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 // If your Prisma file is located elsewhere, you can change the path
 //import { PrismaClient } from "../../generated/prisma/client";
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 import nodemailer from "nodemailer";
+//import { nextCookies } from "better-auth/next-js";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -19,8 +20,33 @@ export const auth = betterAuth({
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
   baseURL: process.env.BETTER_AUTH_URL!,
+  secret: process.env.BETTER_AUTH_SECRET!,
   redirectTo: process.env.APP_URL!,
-  trustedOrigins: [process.env.APP_URL!],
+  trustedOrigins: [
+    process.env.APP_URL!,
+    "https://foodhub-frontend-gray.vercel.app",
+    "https://foodhub-frontend-gray*.vercel.app",
+    "https://foodhub-frontend*.vercel.app",
+    "https://foodhub-frontend-*.vercel.app",
+    "https://foodhub-frontend-*.vercel.app/*",
+    "https://foodhub-frontend-*.vercel.app/api/auth/*",
+    "https://localhost:3000",
+    "http://localhost:3001",
+  ],
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes
+    },
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+    disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
+  },
 
   user: {
     additionalFields: {
@@ -29,11 +55,15 @@ export const auth = betterAuth({
         defaultValue: "CUSTOMER",
         required: false,
       },
+      password:{
+        type:"string",
+        required:true
+      }
     },
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: false,
   },
   emailVerification: {
     sendOnSignUp: true,
@@ -43,7 +73,6 @@ export const auth = betterAuth({
       const modifiedUrl = new URL(url);
       modifiedUrl.searchParams.set("callbackURL", process.env.APP_URL!);
 
-      
       //   const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
       const info = await transporter.sendMail({
         from: `"FoodHub" <${process.env.APP_EMAIL}>`,
@@ -129,4 +158,5 @@ Support Team`,
       console.log("Message sent: %s", info.messageId);
     },
   },
+  // plugins: [nextCookies()],
 });

@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { providerServices } from "./provider.services";
+import { providerServices } from "./provider.services.js";
 //import { prisma } from "../../lib/prisma.js";
-import cloudinary from "../../config/cloudinary";
+import cloudinary from "../../config/cloudinary.js";
 
 const register = async (req: Request, res: Response) => {
   const userId = req.user?.id;
+  console.log("USER ID:", userId);
   if (!userId) {
     return res.status(400).json({ message: "User id is required" });
   }
@@ -64,7 +65,7 @@ const getMyProviders = async (req: Request, res: Response) => {
       userId as string,
       search
     );
-    console.log(result);
+    //console.log(result);
     return res
       .status(200)
       .json({ data: result, message: "Providers fetched successfully" });
@@ -92,7 +93,7 @@ const getProviderOrders = async (req: Request, res: Response) => {
 
 const createMeal = async (req: Request, res: Response) => {
   try {
-    console.log("RAW BODY:", req.body);
+    //console.log("RAW BODY:", req.body);
     console.log("NAME FIELD:", req.body.name);
     let imageUrl: string | undefined;
 
@@ -135,7 +136,7 @@ const updateMeal = async (req: Request, res: Response) => {
       });
       imageUrl = result.secure_url;
     }
-    console.log("RAW BODY:", req.body);
+    //console.log("RAW BODY:", req.body);
     console.log(typeof req.body.isAvailable, req.body.isAvailable);
     const isAvailable = req.body.isAvailable
       ? req.body.isAvailable === "true"

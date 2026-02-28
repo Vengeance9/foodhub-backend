@@ -76,6 +76,7 @@ const getAllReviews = async (providerId: string) => {
       id: true,
       rating: true,
       comment: true,
+      createdAt: true,
       user: {
         select: {
           name: true,

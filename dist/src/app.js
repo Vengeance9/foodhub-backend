@@ -8,6 +8,7 @@ import { adminRoutes } from './modules/admin/admin.routes';
 import { reviewRoutes } from './modules/reviews/reviews.routes';
 import { categoryRoutes } from './modules/category/category.routes';
 import cors from "cors";
+import { authRoutes } from './modules/auth/auth.route';
 const app = express();
 const port = process.env.BACKEND_PORT;
 console.log("Better Auth URL:", process.env.BETTER_AUTH_URL);
@@ -27,6 +28,7 @@ app.use('/order', orderRoutes);
 app.use('/admin', adminRoutes);
 app.use('/review', reviewRoutes);
 app.use('/categories', categoryRoutes);
+app.use('/auth', authRoutes)
 app.listen(port, () => {
     console.log(`Better Auth app listening on port ${port}`);
 });

@@ -1,7 +1,7 @@
 import { OrderStatus } from "@prisma/client";
 //import { OrderStatus } from "@prisma/enums";
-import { prisma } from "../../lib/prisma";
-import { UserRole } from "../../middleware/auth";
+import { prisma } from "../../lib/prisma.js";
+import { UserRole } from "../../middleware/auth.js";
 const register = async (userId, providerData) => {
     const existingProvider = await prisma.provider.findFirst({
         where: { userId },

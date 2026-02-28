@@ -1,4 +1,4 @@
-import { auth as betterAuth } from "../lib/auth";
+import { auth as betterAuth } from "../lib/auth.js";
 export var UserRole;
 (function (UserRole) {
     UserRole["CUSTOMER"] = "CUSTOMER";
@@ -12,6 +12,7 @@ const auth = (...roles) => {
                 headers: req.headers,
             });
             if (!session) {
+                console.log("session not found");
                 return res.status(401).json({
                     success: false,
                     message: "You are not authorized!",

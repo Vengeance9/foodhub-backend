@@ -1,6 +1,6 @@
 //import { getOrder } from "../../../node_modules/effect/src/Array";
 import { Request, Response } from "express";
-import { orderServices } from "./order.services";
+import { orderServices } from "./order.services.js";
 
 type cartItem = {
   providerMealId: string;
@@ -128,4 +128,16 @@ const getOrderDetails = async (req: Request, res: Response) => {
   }
 };
 
-export const orderController = { checkOutOrder, getOrders, getOrderDetails,addToCart,getCart,clearCart };
+const getMyOrder = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const result = await orderServices.getMyOrder(userId as string);
+    res
+      .status(200)
+      .json({ message: "Orders fetched successfully", data: result });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const orderController = {getMyOrder, checkOutOrder, getOrders, getOrderDetails,addToCart,getCart,clearCart };

@@ -1,24 +1,25 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 const addToCart = async (quantity, userId, providerMealId) => {
     let message = "";
     const providerMeal = await prisma.providerMeal.findUnique({
         where: {
-            id: providerMealId
-        }
+            id: providerMealId,
+        },
     });
     if (!providerMeal || !providerMeal.isAvailable) {
-        return message = "Meal not found";
+        return (message = "Meal not found");
     }
     const existingCart = await prisma.cart.findUnique({
         where: {
             userId,
         },
         select: {
-            providerId: true
-        }
+            providerId: true,
+        },
     });
     if (existingCart && existingCart.providerId !== providerMeal.providerId) {
-        return message = "You can only add items from one restaurant at a time. Clear your cart first?";
+        return (message =
+            "You can only add items from one restaurant at a time. Clear your cart first?");
     }
     else {
         message = "Items added to cart successfully";
@@ -29,42 +30,42 @@ const addToCart = async (quantity, userId, providerMealId) => {
         create: {
             userId,
             providerId: providerMeal.providerId,
-        }
+        },
     });
     const cart2 = await prisma.cartItem.upsert({
         where: {
             cartId_providerMealId: {
                 cartId: cart.id,
-                providerMealId: providerMealId
-            }
+                providerMealId: providerMealId,
+            },
         },
         update: {
-            quantity: { increment: quantity }
+            quantity: { increment: quantity },
         },
         create: {
             cartId: cart.id,
             providerMealId: providerMealId,
             quantity: quantity,
-        }
+        },
     });
     return { message, cartItem: cart2 };
 };
 const clearCart = async (userId) => {
     const cart = await prisma.cart.findUnique({
         where: {
-            userId
-        }
+            userId,
+        },
     });
     if (cart) {
         await prisma.cartItem.deleteMany({
             where: {
-                cartId: cart.id
-            }
+                cartId: cart.id,
+            },
         });
         await prisma.cart.delete({
             where: {
-                id: cart.id
-            }
+                id: cart.id,
+            },
         });
         return { message: "Cart cleared successfully" };
     }
@@ -75,7 +76,7 @@ const clearCart = async (userId) => {
 const getCart = async (userId) => {
     const cart = await prisma.cart.findUnique({
         where: {
-            userId
+            userId,
         },
         select: {
             id: true,
@@ -87,21 +88,21 @@ const getCart = async (userId) => {
                                 select: {
                                     name: true,
                                     description: true,
-                                }
+                                },
                             },
                             provider: {
                                 select: {
-                                    restaurantName: true
-                                }
+                                    restaurantName: true,
+                                },
                             },
                             price: true,
-                            image: true
-                        }
+                            image: true,
+                        },
                     },
-                    quantity: true
-                }
-            }
-        }
+                    quantity: true,
+                },
+            },
+        },
     });
     let totalAmount = 0;
     if (!cart || cart.items.length === 0) {
@@ -113,30 +114,30 @@ const getCart = async (userId) => {
     return { cart, totalAmount };
 };
 const checkOutOrder = async (orderData, userId) => {
-    let message = '';
+    let message = "";
     const cart = await prisma.cart.findUnique({
         where: {
-            userId
+            userId,
         },
         select: {
             id: true,
             providerId: true,
             items: {
                 include: {
-                    providerMeal: true
-                }
-            }
-        }
+                    providerMeal: true,
+                },
+            },
+        },
     });
     if (!cart || cart.items.length === 0) {
-        return message = "Cart is empty";
+        return (message = "Cart is empty");
     }
     let totalAmount = 0;
     const orderItems = cart.items.map((item) => {
         totalAmount += item.quantity * item.providerMeal.price;
         return {
             Providermeal: {
-                connect: { id: item.providerMealId }
+                connect: { id: item.providerMealId },
             },
             quantity: item.quantity,
             price: item.providerMeal.price,
@@ -152,19 +153,19 @@ const checkOutOrder = async (orderData, userId) => {
                 paymentMethod: orderData.paymentMethod,
                 contact: orderData.contact,
                 items: {
-                    create: orderItems
-                }
-            }
+                    create: orderItems,
+                },
+            },
         });
         await tx.cartItem.deleteMany({
             where: {
-                cartId: cart.id
-            }
+                cartId: cart.id,
+            },
         });
         await tx.cart.delete({
             where: {
-                id: cart.id
-            }
+                id: cart.id,
+            },
         });
         return newOrder;
     });
@@ -246,4 +247,50 @@ const getOrderDetails = async (orderId, userId) => {
     });
     return result;
 };
-export const orderServices = { checkOutOrder, getOrders, getOrderDetails, addToCart, getCart, clearCart };
+
+const getMyOrder = async (userId) => {
+  const order = await prisma.order.findMany({
+    where: {
+      customerId: userId,
+      status: {
+        not: "DELIVERED",
+      },
+    },
+    select: {
+      id: true,
+      totalAmount: true,
+      createdAt: true,
+      status: true,
+      provider: {
+        select: {
+          restaurantName: true,
+        },
+      },
+      items: {
+        select: {
+          Providermeal: {
+            select: {
+              price: true,
+              meal: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          quantity: true,
+        },
+      },
+    },
+  });
+  return order;
+};
+export const orderServices = {
+    getMyOrder,
+    checkOutOrder,
+    getOrders,
+    getOrderDetails,
+    addToCart,
+    getCart,
+    clearCart,
+};

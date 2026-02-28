@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { categoryService } from "./category.services";
+import { categoryService } from "./category.services.js";
 
 
 
@@ -28,6 +28,7 @@ const getCategoryProviders = async(req:Request,res:Response)=>{
 const getCategoryMeals = async(req:Request,res:Response)=>{
     try{
         const {name,providerId} = req.params;
+        console.log(name,providerId)
         
         if(!providerId){
             return res.status(400).json({error:"providerId query parameter is required"})

@@ -1,67 +1,49 @@
 import { NextFunction, Request, Response } from "express";
-import { auth as betterAuth } from "../lib/auth";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
+import { prisma } from "../lib/prisma";
+
+export const secret = process.env.BETTER_AUTH_SECRET!;
 export enum UserRole {
-  CUSTOMER = "CUSTOMER",
-  PROVIDER = "PROVIDER",
   ADMIN = "ADMIN",
-}
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        name: string;
-        role: string;
-        emailVerified: boolean;
-      };
-    }
-  }
+  PROVIDER = "PROVIDER",
+  CUSTOMER = "CUSTOMER",
 }
 
 const auth = (...roles: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      
-      const session = await betterAuth.api.getSession({
-        headers: req.headers as any,
+    
+      let token = req.headers.authorization;
+
+      if(!req.headers.authorization){
+        token = req.cookies.token
+      }
+
+      if (!token ) {
+        throw new Error("Token not found!!");
+      }
+
+      const decoded = jwt.verify(token, secret) as JwtPayload;
+
+      const userData = await prisma.user.findUnique({
+        where: {
+          email: decoded.email,
+        },
       });
-
-      if (!session) {
-        return res.status(401).json({
-          success: false,
-          message: "You are not authorized!",
-        });
+      if (!userData) {
+        throw new Error("Unauthorized!");
       }
 
-      if (!session.user.emailVerified) {
-        return res.status(403).json({
-          success: false,
-          message: "Email verification required. Please verfiy your email!",
-        });
+      if (roles.length && !roles.includes(decoded.role)) {
+        throw new Error("Unauthorized!!!");
       }
 
-      req.user = {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.name,
-        role: session.user.role as string,
-        emailVerified: session.user.emailVerified,
-      };
-
-      if (roles.length && !roles.includes(req.user.role as UserRole)) {
-        return res.status(403).json({
-          success: false,
-          message:
-            "Forbidden! You don't have permission to access this resources!",
-        });
-      }
+      req.user = decoded;
 
       next();
-    } catch (err) {
-      next(err);
+    } catch (error: any) {
+      next(error);
     }
   };
 };

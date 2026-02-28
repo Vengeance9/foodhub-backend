@@ -1,46 +1,52 @@
-import { auth as betterAuth } from "../lib/auth";
-export var UserRole;
-(function (UserRole) {
-    UserRole["CUSTOMER"] = "CUSTOMER";
-    UserRole["PROVIDER"] = "PROVIDER";
-    UserRole["ADMIN"] = "ADMIN";
-})(UserRole || (UserRole = {}));
+import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+
+import { prisma } from "../lib/prisma";
+
+export const secret = process.env.BETTER_AUTH_SECRET;
+export const UserRole = {
+  ADMIN : "ADMIN",
+  PROVIDER : "PROVIDER",
+  CUSTOMER : "CUSTOMER",
+}
+
+
 const auth = (...roles) => {
-    return async (req, res, next) => {
-        try {
-            const session = await betterAuth.api.getSession({
-                headers: req.headers,
-            });
-            if (!session) {
-                return res.status(401).json({
-                    success: false,
-                    message: "You are not authorized!",
-                });
-            }
-            if (!session.user.emailVerified) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Email verification required. Please verfiy your email!",
-                });
-            }
-            req.user = {
-                id: session.user.id,
-                email: session.user.email,
-                name: session.user.name,
-                role: session.user.role,
-                emailVerified: session.user.emailVerified,
-            };
-            if (roles.length && !roles.includes(req.user.role)) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Forbidden! You don't have permission to access this resources!",
-                });
-            }
-            next();
-        }
-        catch (err) {
-            next(err);
-        }
-    };
+  return async (req, res, next) => {
+    try {
+    
+      let token = req.headers.authorization;
+
+      if (!req.headers.authorization) {
+        token = req.cookies.token;
+      }
+
+      if (!token) {
+        throw new Error("Token not found!!");
+      }
+
+      const decoded = jwt.verify(token, secret)
+
+      const userData = await prisma.user.findUnique({
+        where: {
+          email: decoded.email,
+        },
+      });
+      if (!userData) {
+        throw new Error("Unauthorized!");
+      }
+
+      if (roles.length && !roles.includes(decoded.role)) {
+        throw new Error("Unauthorized!!!");
+      }
+
+      req.user = decoded;
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 };
+
 export default auth;

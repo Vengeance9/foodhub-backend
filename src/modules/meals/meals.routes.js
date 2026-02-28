@@ -1,6 +1,6 @@
 import express from "express";
-import { mealsController } from "./meals.controller";
-//import auth, { UserRole } from "../../middleware/auth";
+import { mealsController } from "./meals.controller.js";
+//import auth, { UserRole } from "../../middleware/auth.js";
 const router = express.Router();
 router.get("/", mealsController.getAllMeals);
 router.get("/providers", 

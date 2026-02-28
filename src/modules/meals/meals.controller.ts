@@ -1,7 +1,7 @@
 
 import { Request, Response } from "express";
-import { mealService } from "./meals.service";
-import { pagination } from "../../helpers/pagination";
+import { mealService } from "./meals.service.js";
+import { pagination } from "../../helpers/pagination.js";
 
 
 const getAllMeals = async(req:Request,res:Response)=>{
@@ -50,7 +50,7 @@ const getProviders = async(req:Request,res:Response)=>{
       const userId = req.user?.id
       console.log("userId:", userId)
       const result = await mealService.getProviders()
-      console.log(result)
+      //console.log(result)
       return res.status(200).json({data:result,message:'Providers fetched successfully'})
     }
     catch(error){

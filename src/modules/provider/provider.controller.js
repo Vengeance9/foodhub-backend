@@ -1,10 +1,10 @@
 import { providerServices } from "./provider.services";
-//import { prisma } from "../../lib/prisma";
+//import { prisma } from "../../lib/prisma.js";
 import cloudinary from "../../config/cloudinary";
 const register = async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
-        return res.status(400).json({ message: 'User id is required' });
+        return res.status(400).json({ message: "User id is required" });
     }
     try {
         let imageUrl;
@@ -44,7 +44,9 @@ const register = async (req, res) => {
             image: imageUrl,
         };
         const result = await providerServices.register(userId, providerData);
-        return res.status(201).json({ data: result, message: 'Provider registered successfully' });
+        return res
+            .status(201)
+            .json({ data: result, message: "Provider registered successfully" });
     }
     catch (e) {
         res.status(500).json({ message: e.message });
@@ -57,7 +59,9 @@ const getMyProviders = async (req, res) => {
         console.log("this is the search query:", search);
         const result = await providerServices.getMyProviders(userId, search);
         console.log(result);
-        return res.status(200).json({ data: result, message: 'Providers fetched successfully' });
+        return res
+            .status(200)
+            .json({ data: result, message: "Providers fetched successfully" });
     }
     catch (e) {
         res.status(500).json({ message: e.message });
@@ -69,7 +73,9 @@ const getProviderOrders = async (req, res) => {
     // console.log('yayyyyaaaa')
     try {
         const result = await providerServices.getProviderOrders(providerId);
-        return res.status(200).json({ data: result, message: 'Orders fetched successfully' });
+        return res
+            .status(200)
+            .json({ data: result, message: "Orders fetched successfully" });
     }
     catch (e) {
         console.log(e.message);
@@ -89,9 +95,15 @@ const createMeal = async (req, res) => {
         }
         const providerId = req.params.id;
         console.log(providerId);
-        const isAvailable = req.body.isAvailable ? req.body.isAvailable === 'true' ? true : false : true;
+        const isAvailable = req.body.isAvailable
+            ? req.body.isAvailable === "true"
+                ? true
+                : false
+            : true;
         const result = await providerServices.createMeal(req.body, imageUrl, providerId, isAvailable);
-        return res.status(201).json({ data: result, message: 'Meal created successfully' });
+        return res
+            .status(201)
+            .json({ data: result, message: "Meal created successfully" });
     }
     catch (e) {
         console.log(e);
@@ -109,11 +121,21 @@ const updateMeal = async (req, res) => {
             imageUrl = result.secure_url;
         }
         console.log("RAW BODY:", req.body);
-        console.log(typeof (req.body.isAvailable), req.body.isAvailable);
-        const isAvailable = req.body.isAvailable ? req.body.isAvailable === 'true' ? true : false : undefined;
-        const updatedData = { ...req.body, isAvailable: isAvailable, image: imageUrl };
+        console.log(typeof req.body.isAvailable, req.body.isAvailable);
+        const isAvailable = req.body.isAvailable
+            ? req.body.isAvailable === "true"
+                ? true
+                : false
+            : undefined;
+        const updatedData = {
+            ...req.body,
+            isAvailable: isAvailable,
+            image: imageUrl,
+        };
         const result = await providerServices.updateMeal(updatedData, mealId);
-        return res.status(200).json({ data: result, message: 'Meal updated successfully' });
+        return res
+            .status(200)
+            .json({ data: result, message: "Meal updated successfully" });
     }
     catch (e) {
         res.status(500).json({ message: e.message });
@@ -125,7 +147,7 @@ const deleteMeal = async (req, res) => {
     console.log(providerId, mealId);
     try {
         await providerServices.deleteMeal(mealId, providerId);
-        return res.status(200).json({ message: 'Meal deleted successfully' });
+        return res.status(200).json({ message: "Meal deleted successfully" });
     }
     catch (e) {
         res.status(500).json({ message: e.message });
@@ -134,7 +156,9 @@ const deleteMeal = async (req, res) => {
 const getAllProviders = async (req, res) => {
     try {
         const result = await providerServices.getAllProviders();
-        return res.status(200).json({ data: result, message: 'Providers fetched successfully' });
+        return res
+            .status(200)
+            .json({ data: result, message: "Providers fetched successfully" });
     }
     catch (e) {
         res.status(500).json({ message: "Internal server error" });
@@ -144,7 +168,9 @@ const getProviderMeals = async (req, res) => {
     const providerId = req.params.id;
     try {
         const result = await providerServices.getProviderMeals(providerId);
-        return res.status(200).json({ data: result, message: 'Meals fetched successfully' });
+        return res
+            .status(200)
+            .json({ data: result, message: "Meals fetched successfully" });
     }
     catch (e) {
         res.status(500).json({ message: e.message });
@@ -154,13 +180,15 @@ const updateOrderStatus = async (req, res) => {
     const userId = req.user?.id;
     const orderId = req.params.id;
     const { status } = req.body;
-    const validStatuses = ['PENDING', 'ON_THE_WAY', 'PREPARING', 'DELIVERED'];
+    const validStatuses = ["PENDING", "ON_THE_WAY", "PREPARING", "DELIVERED"];
     if (!validStatuses.includes(status)) {
-        return res.status(400).json({ message: 'Invalid status' });
+        return res.status(400).json({ message: "Invalid status" });
     }
     try {
         const result = await providerServices.updateOrderStatus(orderId, status, userId);
-        return res.status(200).json({ data: result, message: 'Order status updated successfully' });
+        return res
+            .status(200)
+            .json({ data: result, message: "Order status updated successfully" });
     }
     catch (e) {
         res.status(500).json({ message: e.message });
@@ -208,10 +236,23 @@ const updateProvider = async (req, res) => {
             image: imageUrl,
         };
         const result = await providerServices.updateProvider(providerId, providerData);
-        return res.status(200).json({ data: result, message: 'Provider updated successfully' });
+        return res
+            .status(200)
+            .json({ data: result, message: "Provider updated successfully" });
     }
     catch (e) {
         res.status(500).json({ message: e.message });
     }
 };
-export const providerController = { updateProvider, getProviderOrders, getMyProviders, updateOrderStatus, getProviderMeals, createMeal, updateMeal, register, deleteMeal, getAllProviders };
+export const providerController = {
+    updateProvider,
+    getProviderOrders,
+    getMyProviders,
+    updateOrderStatus,
+    getProviderMeals,
+    createMeal,
+    updateMeal,
+    register,
+    deleteMeal,
+    getAllProviders,
+};

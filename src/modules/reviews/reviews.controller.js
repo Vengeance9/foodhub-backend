@@ -1,4 +1,4 @@
-//import { prisma } from "../../lib/prisma";
+//import { prisma } from "../../lib/prisma.js";
 import { reviewServices } from "./reviews.services";
 //import { get } from "http";
 const reviewProvider = async (req, res) => {

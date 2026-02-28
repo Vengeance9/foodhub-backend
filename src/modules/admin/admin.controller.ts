@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { adminServices } from "./admin.services";
+import { adminServices } from "./admin.services.js";
 import { UserRole } from "../../middleware/auth.js";
-import { pagination } from "../../helpers/pagination";
+import { pagination } from "../../helpers/pagination.js";
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
